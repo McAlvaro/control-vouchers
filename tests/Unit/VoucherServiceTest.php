@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Models\User;
+use App\Models\Voucher;
 use App\Services\Contracts\IVoucherService;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -47,11 +48,28 @@ class VoucherServiceTest extends TestCase
             'id' => $voucher->id
         ]);
 
-        foreach($items as $item) {
+        foreach ($items as $item) {
             $this->assertDatabaseHas('voucher_items', [
                 'voucher_id' => $voucher->id,
                 'description' => $item['description']
             ]);
         }
+    }
+
+    public function  test_get_all_vouchers(): void
+    {
+
+        $user = User::factory()->create();
+
+        Voucher::factory()->count(25)->create(['user_id' => $user->id]);
+
+        $voucherService = app(IVoucherService::class);
+
+        $paginatedVouchers = $voucherService->getAll();
+
+        $this->assertInstanceOf(\Illuminate\Pagination\LengthAwarePaginator::class, $paginatedVouchers);
+        $this->assertEquals(10, $paginatedVouchers->perPage());
+        $this->assertEquals(25, $paginatedVouchers->total());
+        $this->assertGreaterThan(0, $paginatedVouchers->count());
     }
 }

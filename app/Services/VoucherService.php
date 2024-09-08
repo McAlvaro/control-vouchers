@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\User;
 use App\Models\Voucher;
 use App\Services\Contracts\IVoucherService;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class VoucherService implements IVoucherService
 {
@@ -33,5 +35,12 @@ class VoucherService implements IVoucherService
     private function createItems(Voucher $voucher, array $items): void
     {
         $voucher->items()->createMany($items);
+    }
+
+    public function getAll(): LengthAwarePaginator
+    {
+
+        return Voucher::query()->orderBy(column: 'id', direction: 'desc')->paginate(perPage: 10);
+
     }
 }

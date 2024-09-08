@@ -4,6 +4,7 @@ namespace App\Services\Contracts;
 
 use App\Models\User;
 use App\Models\Voucher;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 interface IVoucherService
 {
@@ -15,5 +16,7 @@ interface IVoucherService
      * @return Voucher
      */
     public function createVoucher(User $user, array $voucherData): Voucher;
+
+    public function getAll(): LengthAwarePaginator;
 }
 
