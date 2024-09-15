@@ -6,6 +6,7 @@ use App\Http\Requests\StoreVoucherRequest;
 use App\Http\Requests\UpdateVoucherRequest;
 use App\Models\Voucher;
 use App\Services\Contracts\IVoucherService;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -24,6 +25,7 @@ class VoucherController extends Controller
     public function index(): Response
     {
         $vouchers = $this->voucherService->getAll();
+
         return Inertia::render(component: 'Vouchers/Index', props: [
             'vouchers' => $vouchers
         ]);
@@ -40,11 +42,12 @@ class VoucherController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     * @return void
      */
-    public function store(StoreVoucherRequest $request): void
+    public function store(StoreVoucherRequest $request)
     {
-        //
+        $voucher = $this->voucherService->createVoucher(Auth::user(), $request->all());
+
+        return redirect()->route('vouchers.index')->with('success', 'Voucher creado exisitosamente');
     }
 
     /**

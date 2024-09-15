@@ -202,7 +202,6 @@
 
 <script setup>
 import { Link } from '@inertiajs/vue3';
-import { defineProps } from 'vue';
 
 // Define props
 const props = defineProps({

@@ -1,7 +1,10 @@
 <script setup>
 import DataTable from '@/Components/partials/DataTable.vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
+import { computed, ref, watch } from 'vue';
+import ModalVoucher from './partials/ModalVoucher.vue';
+import { PlusIcon, TrashIcon } from '@heroicons/vue/24/solid'
 
 const columns = [
     { header: '#', key: 'voucher_number' },
@@ -11,8 +14,85 @@ const columns = [
     { header: 'Placa', key: 'plate' },
     { header: 'ES', key: 'station_name' },
     { header: 'Status', key: 'status', render: (value) => value === 'active' ? 'Active' : 'Cancelled' },
-    { header: 'Total', key: 'total_amount', render: (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'Bs' }).format(value) }
-]
+    { header: 'Total', key: 'total_amount', render: (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'BOB' }).format(value) }
+];
+
+const showModal = ref(false);
+defineProps({vouchers: Array});
+
+const form = useForm({
+    date: '',
+    delivery_to: '',
+    vehicle: '',
+    plate: '',
+    station_name: '',
+    kilometer: '',
+    status: 'active',
+    total_amount: 0,
+    items: []
+});
+
+const totalAmount = computed(() => {
+    return form.items.reduce((total, item) => {
+        return total + (item.quantity * item.unit_price);
+    }, 0);
+});
+
+watch(
+    () => form.items,
+    (newItems) => {
+        newItems.forEach(item => {
+            item.total_price = item.quantity * item.unit_price;
+        });
+    },
+    { deep: true }  // Observar cambios dentro de los objetos de la lista
+);
+
+const openModal = () => {
+    showModal.value = true;
+};
+
+const closeModal = () => {
+    showModal.value = false;
+    resetData();
+};
+
+const saveVoucher = () => {
+    // Aquí debes manejar la lógica para guardar el voucher
+    form.total_amount = totalAmount;
+    console.log('Saving voucher:', form.data());
+    form.post(route('vouchers.store'), {
+        onSuccess: () => {
+            showModal.value = false;
+            resetData();
+        },
+        onError: (errors) => {
+            console.error('Errores: ', errors);
+        }
+    });
+};
+
+const addItem = () => {
+    form.items.push({
+        quantity: 0,
+        description: '',
+        unit_price: 0,
+        total_price: 0
+    });
+};
+
+const removeItem = (index) => {
+    form.items.splice(index, 1);
+};
+
+const formatCurrency = (value) => {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'BOB' }).format(value);
+};
+
+const resetData = () => {
+    form.reset();
+    totalAmount.value = 0;
+};
 </script>
 
 <template>
@@ -23,18 +103,109 @@ const columns = [
         <template #header>
         </template>
 
-        <!-- Aquí el contenido irá al slot por defecto -->
+        <!-- Contenido del slot por defecto -->
         <div class="py-12">
             <div class="max-w-full mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="flex justify-between items-center mt-3 mx-8">
                         <h1 class="text-3xl font-semibold text-gray-800">Voucher Management</h1>
-                        <button @click="openModal()"
+                        <button @click="openModal"
                             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                             Add New Voucher
                         </button>
+                        <ModalVoucher v-model:show="showModal" :formData="form" title="Add New Voucher"
+                            actionButtonText="Add Voucher" @submit="saveVoucher" @close="closeModal">
+                            <template #default="{ formData }">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="col-span-2">
+                                        <label for="delivery_to"
+                                            class="block text-sm font-medium text-gray-700">Delivery To</label>
+                                        <input type="text" v-model="form.delivery_to" id="delivery_to" required
+                                            class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                    </div>
+                                    <div class="col-span-2">
+                                        <label for="station_name"
+                                            class="block text-sm font-medium text-gray-700">Station Name</label>
+                                        <input type="text" v-model="form.station_name" id="delivery_to" required
+                                            class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                    </div>
+                                    <!-- Campos personalizados -->
+                                    <div>
+                                        <label for="vehicle"
+                                            class="block text-sm font-medium text-gray-700">Vehicle</label>
+                                        <input type="text" v-model="form.vehicle" id="vehicle" required
+                                            class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                    </div>
+                                    <div>
+                                        <label for="plate" class="block text-sm font-medium text-gray-700">Plate</label>
+                                        <input type="text" v-model="form.plate" id="plate" required
+                                            class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                    </div>
+                                    <div>
+                                        <label for="kilometer"
+                                            class="block text-sm font-medium text-gray-700">Kilometer</label>
+                                        <input type="text" v-model="form.kilometer" id="plate" required
+                                            class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                    </div>
+                                    <div>
+                                        <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
+                                        <input type="date" v-model="form.date" id="date" required
+                                            class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                    </div>
+                                    <!-- Puedes añadir más campos personalizados aquí -->
+                                    <!-- Items section -->
+                                    <div class="mt-6 col-span-2">
+                                        <h4 class="text-lg font-medium text-gray-900 mb-2">Items</h4>
+                                        <div v-for="(item, index) in form.items" :key="index"
+                                            class="border-t border-gray-200 pt-2 mb-2">
+                                            <div class="grid grid-cols-3 gap-4">
+                                                <div>
+                                                    <label :for="'description-' + index"
+                                                        class="block text-sm font-medium text-gray-700">Description</label>
+                                                    <input type="text" v-model="item.description"
+                                                        :id="'description-' + index" rows="2" required
+                                                        class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></input>
+                                                </div>
+                                                <div>
+                                                    <label :for="'quantity-' + index"
+                                                        class="block text-sm font-medium text-gray-700">Quantity</label>
+                                                    <input type="number" v-model="item.quantity"
+                                                        :id="'quantity-' + index" step="0.01" required
+                                                        class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                                </div>
+                                                <div>
+                                                    <label :for="'unit_price-' + index"
+                                                        class="block text-sm font-medium text-gray-700">Unit
+                                                        Price</label>
+                                                    <input type="number" v-model="item.unit_price"
+                                                        :id="'unit_price-' + index" step="0.01" required
+                                                        class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                                </div>
+                                            </div>
+                                            <div class="mt-2 flex justify-end items-center">
+                                                <p class="text-sm mr-4 text-gray-500">Total: {{
+                                                    formatCurrency(item.quantity
+                                                        * item.unit_price) }}</p>
+                                                <button type="button" @click="removeItem(index)"
+                                                    class="text-red-600 hover:text-red-900">
+                                                    <TrashIcon class=" h-5 w-5" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <button type="button" @click="addItem"
+                                            class="mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                            <PlusIcon class="h-5 w-5 mr-2" />
+                                            Add Item
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-span-2 flex justify-end items-center">
+                                    <p class="text-lg font-bold ">Total Amount: {{ formatCurrency(totalAmount) }}</p>
+                                </div>
+                            </template>
+                        </ModalVoucher>
                     </div>
-                    <DataTable title="Vouchers" :columns="columns" :data="vouchers">
+                    <DataTable title="Vouchers" :columns="columns" :data="vouchers.data">
                         <!-- Acciones personalizadas dentro del slot -->
                         <template #actions="{ row }">
                             <button @click="$emit('edit-voucher', row)" class="text-blue-600 hover:text-blue-900 mr-2">

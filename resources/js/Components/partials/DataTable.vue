@@ -29,10 +29,10 @@ defineProps({
       <tbody>
         <!-- Renderiza dinámicamente las filas y los datos -->
         <tr v-for="row in data" :key="row.id">
-          <td v-for="column in columns" :key="column.key" class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+          <td v-for="column in columns" :key="column.key" class="px-5 py-2 border-b border-gray-200 bg-white text-sm">
             {{ column.render ? column.render(row[column.key]) : row[column.key] }}
           </td>
-          <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+          <td class="px-5 py-2 border-b border-gray-200 bg-white text-sm">
             <slot name="actions" :row="row"></slot>
           </td>
         </tr>

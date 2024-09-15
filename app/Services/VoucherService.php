@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Models\Voucher;
 use App\Services\Contracts\IVoucherService;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
 
 class VoucherService implements IVoucherService
 {
@@ -39,8 +38,9 @@ class VoucherService implements IVoucherService
 
     public function getAll(): LengthAwarePaginator
     {
+        $vouchers = Voucher::query()->orderBy(column: 'id', direction: 'desc')->paginate(perPage: 10);
 
-        return Voucher::query()->orderBy(column: 'id', direction: 'desc')->paginate(perPage: 10);
+        return $vouchers;
 
     }
 }

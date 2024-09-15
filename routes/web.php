@@ -26,5 +26,6 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/vouchers', [VoucherController::class, 'index'])->name('vouchers.index');
+Route::post('/vouchers', [VoucherController::class, 'store'])->name('vouchers.store');
 
 require __DIR__.'/auth.php';
