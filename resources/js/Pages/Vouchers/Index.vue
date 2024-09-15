@@ -6,6 +6,7 @@ import { computed, ref, watch } from 'vue';
 import ModalVoucher from './partials/ModalVoucher.vue';
 import { PlusIcon, TrashIcon } from '@heroicons/vue/24/solid'
 import Pagination from './partials/Pagination.vue';
+import ConfirmDeleteModal from '@/Components/partials/ConfirmDeleteModal.vue';
 
 const columns = [
     { header: '#', key: 'voucher_number' },
@@ -19,8 +20,10 @@ const columns = [
 ];
 
 const showModal = ref(false);
+const showDeleteModal = ref(false);
 const isEditing = ref(false);
 const currentVoucher = ref(null);
+const voucherToDelete = ref(null);
 defineProps({ vouchers: Array });
 
 const form = useForm({
@@ -73,9 +76,32 @@ const openModal = () => {
     showModal.value = true;
 };
 
+const openDeleteModal = (voucher) => {
+    showDeleteModal.value = true;
+    voucherToDelete.value = voucher;
+};
+
+const closeDeleteModal = () => {
+    showDeleteModal.value = false;
+    voucherToDelete.value = null;
+};
+
 const closeModal = () => {
     showModal.value = false;
     resetData();
+};
+
+const deleteVoucher = () => {
+    if (voucherToDelete.value) {
+        form.delete(route('vouchers.destroy', voucherToDelete.value.id), {
+            onSuccess: () => {
+                closeDeleteModal();
+            },
+            onError: (errors) => {
+                console.error('Errores al eliminar el voucher: ', errors);
+            }
+        });
+    }
 };
 
 const saveVoucher = () => {
@@ -143,6 +169,10 @@ function roundTo(num, precision) {
 const actionButtonText = computed(() => {
     return isEditing.value ? 'Actualizar' : 'Guardar';
 });
+
+const titleModal = computed(() => {
+    return isEditing.value ? 'Editar Vale' : 'Nuevo Vale';
+});
 </script>
 
 <template>
@@ -158,48 +188,48 @@ const actionButtonText = computed(() => {
             <div class="max-w-full mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="flex justify-between items-center mt-3 mx-8">
-                        <h1 class="text-3xl font-semibold text-gray-800">Voucher Management</h1>
+                        <h1 class="text-3xl font-semibold text-gray-800">Vales</h1>
                         <button @click="openModal"
                             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                            Add New Voucher
+                            Agregar Nuevo Vale
                         </button>
-                        <ModalVoucher v-model:show="showModal" :formData="form" title="Add New Voucher"
+                        <ModalVoucher v-model:show="showModal" :formData="form" :title="titleModal"
                             :actionButtonText="actionButtonText" @submit="saveVoucher"
                             @close="closeModal">
                             <template #default="{ formData }">
                                 <div class="grid grid-cols-2 gap-4">
                                     <div class="col-span-2">
                                         <label for="delivery_to"
-                                            class="block text-sm font-medium text-gray-700">Delivery To</label>
+                                            class="block text-sm font-medium text-gray-700">Chofer</label>
                                         <input type="text" v-model="form.delivery_to" id="delivery_to" required
                                             class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                                     </div>
                                     <div class="col-span-2">
                                         <label for="station_name"
-                                            class="block text-sm font-medium text-gray-700">Station Name</label>
+                                            class="block text-sm font-medium text-gray-700">Estación de Servicio</label>
                                         <input type="text" v-model="form.station_name" id="delivery_to" required
                                             class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                                     </div>
                                     <!-- Campos personalizados -->
                                     <div>
                                         <label for="vehicle"
-                                            class="block text-sm font-medium text-gray-700">Vehicle</label>
+                                            class="block text-sm font-medium text-gray-700">Vehículo</label>
                                         <input type="text" v-model="form.vehicle" id="vehicle" required
                                             class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                                     </div>
                                     <div>
-                                        <label for="plate" class="block text-sm font-medium text-gray-700">Plate</label>
+                                        <label for="plate" class="block text-sm font-medium text-gray-700">Placa</label>
                                         <input type="text" v-model="form.plate" id="plate" required
                                             class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                                     </div>
                                     <div>
                                         <label for="kilometer"
-                                            class="block text-sm font-medium text-gray-700">Kilometer</label>
+                                            class="block text-sm font-medium text-gray-700">Kilometraje</label>
                                         <input type="text" v-model="form.kilometer" id="plate" required
                                             class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                                     </div>
                                     <div>
-                                        <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
+                                        <label for="date" class="block text-sm font-medium text-gray-700">Fecha</label>
                                         <input type="date" v-model="form.date" id="date" required
                                             class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                                     </div>
@@ -212,22 +242,21 @@ const actionButtonText = computed(() => {
                                             <div class="grid grid-cols-3 gap-4">
                                                 <div>
                                                     <label :for="'description-' + index"
-                                                        class="block text-sm font-medium text-gray-700">Description</label>
+                                                        class="block text-sm font-medium text-gray-700">Descripción</label>
                                                     <input type="text" v-model="item.description"
                                                         :id="'description-' + index" rows="2" required
                                                         class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></input>
                                                 </div>
                                                 <div>
                                                     <label :for="'quantity-' + index"
-                                                        class="block text-sm font-medium text-gray-700">Quantity</label>
+                                                        class="block text-sm font-medium text-gray-700">Cantidad</label>
                                                     <input type="number" v-model="item.quantity"
                                                         :id="'quantity-' + index" step="0.01" required
                                                         class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                                                 </div>
                                                 <div>
                                                     <label :for="'unit_price-' + index"
-                                                        class="block text-sm font-medium text-gray-700">Unit
-                                                        Price</label>
+                                                        class="block text-sm font-medium text-gray-700">Precio Unitario</label>
                                                     <input type="number" v-model="item.unit_price"
                                                         :id="'unit_price-' + index" step="0.01" required
                                                         class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
@@ -246,18 +275,20 @@ const actionButtonText = computed(() => {
                                         <button type="button" @click="addItem"
                                             class="mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                                             <PlusIcon class="h-5 w-5 mr-2" />
-                                            Add Item
+                                            Agregar Item
                                         </button>
                                     </div>
                                 </div>
                                 <div class="col-span-2 flex justify-end items-center">
-                                    <p class="text-lg font-bold ">Total Amount: {{ formatCurrency(totalAmount) }}</p>
+                                    <p class="text-lg font-bold ">Monto Total: {{ formatCurrency(totalAmount) }}</p>
                                 </div>
                             </template>
                         </ModalVoucher>
                     </div>
+                    <ConfirmDeleteModal :show="showDeleteModal" :entity="'Vale'" @close="closeDeleteModal" @confirm="deleteVoucher" />
                     <DataTable title="Vouchers" :columns="columns" :data="vouchers.data"
-                        @edit-voucher="handleEditVoucher" />
+                        @edit-voucher="handleEditVoucher"
+                        @delete-voucher="openDeleteModal"/>
                     <Pagination :currentPage="vouchers.current_page" :totalItems="vouchers.total"
                         :itemsPerPage="vouchers.per_page" />
                 </div>

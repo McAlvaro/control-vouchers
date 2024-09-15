@@ -45,7 +45,7 @@ const submitForm = () => {
             <div
                 class="inline-block align-middle bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full">
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                    <h3 class="text-xl text-center font-bold leading-6 text-gray-900" id="modal-title">
                         {{ title }}
                     </h3>
                     <div class="mt-2">
