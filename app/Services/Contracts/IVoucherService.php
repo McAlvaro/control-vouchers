@@ -17,6 +17,8 @@ interface IVoucherService
      */
     public function createVoucher(User $user, array $voucherData): Voucher;
 
+    public function updateVoucher(Voucher $voucher, array $voucherData): Voucher;
+
     public function getAll(): LengthAwarePaginator;
 }
 

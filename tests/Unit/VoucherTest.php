@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Models\User;
 use App\Models\Voucher;
+use App\Models\VoucherItem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -76,7 +77,8 @@ class VoucherTest extends TestCase
         ]);
     }
 
-    public function test_it_validates_store_request() {
+    public function test_it_validates_store_request()
+    {
 
         $user = User::factory()->create();
 
@@ -107,5 +109,59 @@ class VoucherTest extends TestCase
         $response->assertStatus(302);
 
         $response->assertSessionHasErrors(['delivery_to']);
+    }
+
+    public function test_it_can_update_a_voucher()
+    {
+
+        $user = User::factory()->create();
+
+        $token = csrf_token();
+
+        $voucherData = [
+            'date' => $this->faker->date(),
+            'delivery_to' => $this->faker->firstName,
+            'vehicle' => $this->faker->text,
+            'plate' => $this->faker->randomNumber(nbDigits: 3)  . (strtoupper($this->faker->randomLetter(3))),
+            'kilometer' => strval($this->faker->randomNumber(nbDigits: 5)),
+            'station_name' => $this->faker->company,
+            'total_amount' => round(30.56, 2),
+            'user_id' => $user->id
+        ];
+
+        $voucher = Voucher::factory()->create($voucherData);
+
+        $items = [
+            [
+                'quantity' => $this->faker->numberBetween(1, 100),
+                'description' => $this->faker->randomElement(['Gasolina', 'Diesel', 'Otros']),
+                'unit_price' => round($this->faker->randomFloat(2, 1, 5), 2),
+                'total_price' => round($this->faker->randomFloat(2, 50, 200), 2),
+                'voucher_id' => $voucher->id
+            ]
+        ];
+
+        $voucherItems = VoucherItem::factory()->create($items[0]);
+
+        $updatedData = [
+            'date' => $this->faker->date(),
+            'delivery_to' => 'Name updated',
+            'vehicle' => $this->faker->text,
+            'plate' => $this->faker->randomNumber(nbDigits: 3)  . (strtoupper($this->faker->randomLetter(3))),
+            'kilometer' => strval($this->faker->randomNumber(nbDigits: 5)),
+            'station_name' => $this->faker->company,
+            'total_amount' => round(30.56, 2),
+            'items' => $items,
+            '_token' => $token
+        ];
+
+
+        $response = $this->actingAs($user)->put(route('vouchers.update', $voucher), $updatedData);
+
+        $response->assertRedirect(route('vouchers.index'));
+
+        $this->assertDatabaseHas('vouchers', [
+            'delivery_to' => 'Name updated'
+        ]);
     }
 }

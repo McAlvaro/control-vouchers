@@ -72,9 +72,11 @@ class VoucherController extends Controller
      * Update the specified resource in storage.
      * @return void
      */
-    public function update(UpdateVoucherRequest $request, Voucher $voucher): void
+    public function update(UpdateVoucherRequest $request, Voucher $voucher)
     {
-        //
+        $this->voucherService->updateVoucher($voucher, $request->all());
+
+        return redirect()->route('vouchers.index')->with('success', 'Actualizado exisitosamente');
     }
 
     /**

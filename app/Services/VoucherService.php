@@ -22,7 +22,7 @@ class VoucherService implements IVoucherService
             'user_id' => $user->id
         ]);
 
-        $this->createItems($voucher, $voucherData['items']);
+        $this->saveItems($voucher, $voucherData['items']);
 
         return $voucher->load('items');
     }
@@ -31,16 +31,50 @@ class VoucherService implements IVoucherService
      * @param Voucher $voucher
      * @param array<int,mixed> $items
      */
-    private function createItems(Voucher $voucher, array $items): void
+    private function saveItems(Voucher $voucher, array $items): void
     {
         $voucher->items()->createMany($items);
+    }
+    /**
+     * @param Voucher $voucher
+     * @param array<int,mixed> $items
+     */
+    private function updateItems(Voucher $voucher, array $items): void
+    {
+        $existingItems = $voucher->items()->pluck('id')->toArray();
+        $newItems = array_column($items, 'id');
+
+        $itemsToDelete = array_diff($existingItems, $newItems);
+        if ($itemsToDelete) {
+            $voucher->items()->whereIn('id', $itemsToDelete)->delete();
+        }
+
+        // Actualizar o crear nuevos items
+        foreach ($items as $item) {
+            $voucher->items()->updateOrCreate(
+                ['id' => $item['id'] ?? 0], // Buscar por id para actualizar
+                $item // Datos del item
+            );
+        }
     }
 
     public function getAll(): LengthAwarePaginator
     {
-        $vouchers = Voucher::query()->orderBy(column: 'id', direction: 'desc')->paginate(perPage: 10);
+        $vouchers = Voucher::query()->with('items')->orderBy(column: 'id', direction: 'desc')->paginate(perPage: 10);
 
         return $vouchers;
+    }
 
+    public function updateVoucher(Voucher $voucher, array $voucherData): Voucher
+    {
+        $voucherItems = $voucherData['items'] ?? [];
+
+        unset($voucherData['items']);
+
+        $voucher->update($voucherData);
+
+        $this->updateItems($voucher, $voucherItems);
+
+        return $voucher;
     }
 }

@@ -4,7 +4,7 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 import ModalVoucher from './partials/ModalVoucher.vue';
-import { PlusIcon, TrashIcon, PencilIcon, EyeIcon } from '@heroicons/vue/24/solid'
+import { PlusIcon, TrashIcon } from '@heroicons/vue/24/solid'
 import Pagination from './partials/Pagination.vue';
 
 const columns = [
@@ -19,6 +19,8 @@ const columns = [
 ];
 
 const showModal = ref(false);
+const isEditing = ref(false);
+const currentVoucher = ref(null);
 defineProps({ vouchers: Array });
 
 const form = useForm({
@@ -35,7 +37,7 @@ const form = useForm({
 
 const totalAmount = computed(() => {
     return form.items.reduce((total, item) => {
-        return roundTo((total + (item.quantity * item.unit_price)), 2);
+        return roundTo((Number(total) + Number(item.quantity * item.unit_price)), 2);
     }, 0);
 });
 
@@ -50,6 +52,24 @@ watch(
 );
 
 const openModal = () => {
+    console.log('currentVoucher: ', currentVoucher);
+    if (currentVoucher.value) {
+        isEditing.value = true;
+        form.id = currentVoucher.value.id;
+        form.date = currentVoucher.value.date;
+        form.delivery_to = currentVoucher.value.delivery_to;
+        form.vehicle = currentVoucher.value.vehicle;
+        form.plate = currentVoucher.value.plate;
+        form.station_name = currentVoucher.value.station_name;
+        form.kilometer = currentVoucher.value.kilometer;
+        form.status = currentVoucher.value.status;
+        form.total_amount = currentVoucher.value.total_amount;
+        form.items = currentVoucher.value.items;
+    } else {
+        // Agregar un nuevo voucher
+        isEditing.value = false;
+        resetData();
+    }
     showModal.value = true;
 };
 
@@ -59,18 +79,39 @@ const closeModal = () => {
 };
 
 const saveVoucher = () => {
-    // Aquí debes manejar la lógica para guardar el voucher
-    form.total_amount = totalAmount;
-    console.log('Saving voucher:', form.data());
-    form.post(route('vouchers.store'), {
-        onSuccess: () => {
-            showModal.value = false;
-            resetData();
-        },
-        onError: (errors) => {
-            console.error('Errores: ', errors);
-        }
-    });
+    // Actualizar total_amount directamente desde totalAmount
+    const totalAmountValue = totalAmount.value;
+
+    if (isEditing.value) {
+        // Actualizar voucher existente
+        form.total_amount = totalAmountValue;
+        form.put(route('vouchers.update', form.id), {
+            onSuccess: () => {
+                showModal.value = false;
+                resetData();
+            },
+            onError: (errors) => {
+                console.error('Errores: ', errors);
+            }
+        });
+    } else {
+        // Crear nuevo voucher
+        form.total_amount = totalAmountValue;
+        form.post(route('vouchers.store'), {
+            onSuccess: () => {
+                showModal.value = false;
+                resetData();
+            },
+            onError: (errors) => {
+                console.error('Errores: ', errors);
+            }
+        });
+    }
+};
+
+const handleEditVoucher = (voucher) => {
+    currentVoucher.value = voucher;
+    openModal();
 };
 
 const addItem = () => {
@@ -93,11 +134,15 @@ const formatCurrency = (value) => {
 const resetData = () => {
     form.reset();
     totalAmount.value = 0;
+    currentVoucher.value = null;
 };
 
 function roundTo(num, precision) {
     return parseFloat(num).toFixed(precision);
 }
+const actionButtonText = computed(() => {
+    return isEditing.value ? 'Actualizar' : 'Guardar';
+});
 </script>
 
 <template>
@@ -119,7 +164,8 @@ function roundTo(num, precision) {
                             Add New Voucher
                         </button>
                         <ModalVoucher v-model:show="showModal" :formData="form" title="Add New Voucher"
-                            actionButtonText="Add Voucher" @submit="saveVoucher" @close="closeModal">
+                            :actionButtonText="actionButtonText" @submit="saveVoucher"
+                            @close="closeModal">
                             <template #default="{ formData }">
                                 <div class="grid grid-cols-2 gap-4">
                                     <div class="col-span-2">
@@ -210,20 +256,8 @@ function roundTo(num, precision) {
                             </template>
                         </ModalVoucher>
                     </div>
-                    <DataTable title="Vouchers" :columns="columns" :data="vouchers.data">
-                        <!-- Acciones personalizadas dentro del slot -->
-                        <template #actions="{ row }">
-                            <button @click="$emit('edit-voucher', row)" class="text-blue-600 hover:text-blue-900 mr-2">
-                                <EyeIcon class="h-5 w-5" />
-                            </button>
-                            <button @click="$emit('edit-voucher', row)" class="text-blue-600 hover:text-blue-900 mr-2">
-                                <PencilIcon class="h-5 w-5" />
-                            </button>
-                            <button @click="$emit('delete-voucher', row)" class="text-red-600 hover:text-red-900">
-                                <TrashIcon class="h-5 w-5" />
-                            </button>
-                        </template>
-                    </DataTable>
+                    <DataTable title="Vouchers" :columns="columns" :data="vouchers.data"
+                        @edit-voucher="handleEditVoucher" />
                     <Pagination :currentPage="vouchers.current_page" :totalItems="vouchers.total"
                         :itemsPerPage="vouchers.per_page" />
                 </div>

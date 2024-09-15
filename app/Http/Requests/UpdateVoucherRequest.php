@@ -11,7 +11,7 @@ class UpdateVoucherRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,20 @@ class UpdateVoucherRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'date' => 'required|date',
+            'delivery_to' => 'required|string',
+            'vehicle' => 'required|string',
+            'plate' => 'required|string',
+            'kilometer' => 'required|string',
+            'station_name' => 'required|string',
+            'total_amount' => 'required|decimal:1,2',
+            'items' => 'required|array',
+            'items.*.quantity' => 'required|decimal:1,2',
+            'items.*.description' => 'required|string',
+            'items.*.unit_price' => 'required|decimal:1,2',
+            'items.*.total_price' => 'required|decimal:1,2',
+            'voucher_number' => 'sometimes|string|unique:vouchers,voucher_number,' . $this->route('voucher')
+
         ];
     }
 }
