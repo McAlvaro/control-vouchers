@@ -19,6 +19,8 @@ interface IVoucherService
 
     public function updateVoucher(Voucher $voucher, array $voucherData): Voucher;
 
+    public function destroy(Voucher $voucher): void;
+
     public function getAll(): LengthAwarePaginator;
 }
 

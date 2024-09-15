@@ -14,11 +14,7 @@ defineProps({
     }
 })
 
-const emit = defineEmits(['edit-voucher'])
-
-const handleEdit = (voucher) => {
-    emit('edit-voucher', voucher);
-};
+const emit = defineEmits(['edit-voucher', 'delete-voucher'])
 </script>
 <template>
     <div class="bg-white shadow-md rounded px-8 pt-6 pb-8">

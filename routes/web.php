@@ -25,8 +25,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/vouchers', [VoucherController::class, 'index'])->name('vouchers.index');
-Route::post('/vouchers', [VoucherController::class, 'store'])->name('vouchers.store');
-Route::put('/vouchers/{voucher}', [VoucherController::class, 'update'])->name('vouchers.update');
+/* Route::middleware('auth')->group(function () { */
 
-require __DIR__.'/auth.php';
+    Route::get('/vouchers', [VoucherController::class, 'index'])->name('vouchers.index');
+    Route::post('/vouchers', [VoucherController::class, 'store'])->name('vouchers.store');
+    Route::put('/vouchers/{voucher}', [VoucherController::class, 'update'])->name('vouchers.update');
+    Route::delete('/vouchers/{voucher}', [VoucherController::class, 'destroy'])->name('vouchers.destroy');
+/* }); */
+
+require __DIR__ . '/auth.php';

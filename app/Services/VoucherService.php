@@ -77,4 +77,9 @@ class VoucherService implements IVoucherService
 
         return $voucher;
     }
+
+    public function destroy(Voucher $voucher): void
+    {
+        $voucher->delete();
+    }
 }

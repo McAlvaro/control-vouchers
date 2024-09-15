@@ -21,6 +21,10 @@ class Voucher extends Model
         static::creating(function ($voucher) {
             $voucher->voucher_number = static::generateNextVoucherNumber();
         });
+
+        static::deleting(function ($voucher) {
+            $voucher->items()->delete();
+        });
     }
 
     private  static function generateNextVoucherNumber()

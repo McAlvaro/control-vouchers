@@ -81,10 +81,11 @@ class VoucherController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     * @return void
      */
-    public function destroy(Voucher $voucher): void
+    public function destroy(Voucher $voucher)
     {
-        //
+        $this->voucherService->destroy($voucher);
+
+        return redirect()->route('vouchers.index')->with('success', 'Eliminado exisitosamente');
     }
 }

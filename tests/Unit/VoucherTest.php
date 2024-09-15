@@ -7,6 +7,7 @@ use App\Models\Voucher;
 use App\Models\VoucherItem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Log;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -40,12 +41,14 @@ class VoucherTest extends TestCase
 
         $items = [
             [
-                'quantity' => $this->faker->numberBetween(1, 100),
+                'quantity' => number_format($this->faker->numberBetween(1, 100), 2),
                 'description' => $this->faker->randomElement(['Gasolina', 'Diesel', 'Otros']),
-                'unit_price' => round($this->faker->randomFloat(2, 1, 5), 2),
-                'total_price' => round($this->faker->randomFloat(2, 50, 200), 2),
+                'unit_price' => number_format($this->faker->randomFloat(2, 1, 5), 2),
+                'total_price' => number_format($this->faker->randomFloat(2, 50, 200), 2),
             ],
         ];
+
+        Log::debug('Items: ' . json_encode($items));
 
         $token = csrf_token();
 
@@ -56,7 +59,7 @@ class VoucherTest extends TestCase
             'plate' => $this->faker->randomNumber(nbDigits: 3)  . (strtoupper($this->faker->randomLetter(3))),
             'kilometer' => strval($this->faker->randomNumber(nbDigits: 5)),
             'station_name' => $this->faker->company,
-            'total_amount' => round(collect($items)->sum('total_price'), 2),
+            'total_amount' => number_format(collect($items)->sum('total_price'), 2),
             'items' => $items,
             '_token' => $token
         ];
@@ -84,10 +87,10 @@ class VoucherTest extends TestCase
 
         $items = [
             [
-                'quantity' => $this->faker->numberBetween(1, 100),
+                'quantity' => number_format($this->faker->numberBetween(1, 100), 2),
                 'description' => $this->faker->randomElement(['Gasolina', 'Diesel', 'Otros']),
-                'unit_price' => round($this->faker->randomFloat(2, 1, 5), 2),
-                'total_price' => round($this->faker->randomFloat(2, 50, 200), 2),
+                'unit_price' => number_format($this->faker->randomFloat(2, 1, 5), 2),
+                'total_price' => number_format($this->faker->randomFloat(2, 50, 200), 2),
             ],
         ];
 
@@ -99,7 +102,7 @@ class VoucherTest extends TestCase
             'plate' => $this->faker->randomNumber(nbDigits: 3)  . (strtoupper($this->faker->randomLetter(3))),
             'kilometer' => strval($this->faker->randomNumber(nbDigits: 5)),
             'station_name' => $this->faker->company,
-            'total_amount' => round(collect($items)->sum('total_price'), 2),
+            'total_amount' => number_format(collect($items)->sum('total_price'), 2),
             'items' => $items,
             '_token' => $token
         ];
@@ -125,7 +128,7 @@ class VoucherTest extends TestCase
             'plate' => $this->faker->randomNumber(nbDigits: 3)  . (strtoupper($this->faker->randomLetter(3))),
             'kilometer' => strval($this->faker->randomNumber(nbDigits: 5)),
             'station_name' => $this->faker->company,
-            'total_amount' => round(30.56, 2),
+            'total_amount' => number_format(30.56, 2),
             'user_id' => $user->id
         ];
 
@@ -133,10 +136,10 @@ class VoucherTest extends TestCase
 
         $items = [
             [
-                'quantity' => $this->faker->numberBetween(1, 100),
+                'quantity' => number_format($this->faker->numberBetween(1, 100), 2),
                 'description' => $this->faker->randomElement(['Gasolina', 'Diesel', 'Otros']),
-                'unit_price' => round($this->faker->randomFloat(2, 1, 5), 2),
-                'total_price' => round($this->faker->randomFloat(2, 50, 200), 2),
+                'unit_price' => number_format($this->faker->randomFloat(2, 1, 5), 2),
+                'total_price' => number_format($this->faker->randomFloat(2, 50, 200), 2),
                 'voucher_id' => $voucher->id
             ]
         ];
@@ -150,7 +153,7 @@ class VoucherTest extends TestCase
             'plate' => $this->faker->randomNumber(nbDigits: 3)  . (strtoupper($this->faker->randomLetter(3))),
             'kilometer' => strval($this->faker->randomNumber(nbDigits: 5)),
             'station_name' => $this->faker->company,
-            'total_amount' => round(30.56, 2),
+            'total_amount' => number_format(30.56, 2),
             'items' => $items,
             '_token' => $token
         ];
@@ -163,5 +166,19 @@ class VoucherTest extends TestCase
         $this->assertDatabaseHas('vouchers', [
             'delivery_to' => 'Name updated'
         ]);
+    }
+
+    public function test_delete_voucher() {
+
+        $user = User::factory()->create();
+        $voucher = Voucher::factory()->create(["user_id" => $user->id]);
+
+        $this->assertDatabaseHas("vouchers", ["id" => $voucher->id]);
+
+        $response = $this->actingAs($user)->delete(route("vouchers.destroy", $voucher->id));
+
+        $response->assertRedirect(route("vouchers.index"));
+
+        $this->assertDatabaseMissing("vouchers", ["id" => $voucher->id]);
     }
 }
