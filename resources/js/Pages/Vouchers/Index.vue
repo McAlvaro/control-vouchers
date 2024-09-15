@@ -4,7 +4,8 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 import ModalVoucher from './partials/ModalVoucher.vue';
-import { PlusIcon, TrashIcon } from '@heroicons/vue/24/solid'
+import { PlusIcon, TrashIcon, PencilIcon, EyeIcon } from '@heroicons/vue/24/solid'
+import Pagination from './partials/Pagination.vue';
 
 const columns = [
     { header: '#', key: 'voucher_number' },
@@ -18,7 +19,7 @@ const columns = [
 ];
 
 const showModal = ref(false);
-defineProps({vouchers: Array});
+defineProps({ vouchers: Array });
 
 const form = useForm({
     date: '',
@@ -34,7 +35,7 @@ const form = useForm({
 
 const totalAmount = computed(() => {
     return form.items.reduce((total, item) => {
-        return total + (item.quantity * item.unit_price);
+        return roundTo((total + (item.quantity * item.unit_price)), 2);
     }, 0);
 });
 
@@ -42,7 +43,7 @@ watch(
     () => form.items,
     (newItems) => {
         newItems.forEach(item => {
-            item.total_price = item.quantity * item.unit_price;
+            item.total_price = roundTo(item.quantity * item.unit_price, 2);
         });
     },
     { deep: true }  // Observar cambios dentro de los objetos de la lista
@@ -93,6 +94,10 @@ const resetData = () => {
     form.reset();
     totalAmount.value = 0;
 };
+
+function roundTo(num, precision) {
+    return parseFloat(num).toFixed(precision);
+}
 </script>
 
 <template>
@@ -209,13 +214,18 @@ const resetData = () => {
                         <!-- Acciones personalizadas dentro del slot -->
                         <template #actions="{ row }">
                             <button @click="$emit('edit-voucher', row)" class="text-blue-600 hover:text-blue-900 mr-2">
-                                <EditIcon class="h-5 w-5" />
+                                <EyeIcon class="h-5 w-5" />
+                            </button>
+                            <button @click="$emit('edit-voucher', row)" class="text-blue-600 hover:text-blue-900 mr-2">
+                                <PencilIcon class="h-5 w-5" />
                             </button>
                             <button @click="$emit('delete-voucher', row)" class="text-red-600 hover:text-red-900">
                                 <TrashIcon class="h-5 w-5" />
                             </button>
                         </template>
                     </DataTable>
+                    <Pagination :currentPage="vouchers.current_page" :totalItems="vouchers.total"
+                        :itemsPerPage="vouchers.per_page" />
                 </div>
             </div>
         </div>
