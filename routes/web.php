@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PdfController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VoucherController;
 use Illuminate\Foundation\Application;
@@ -7,12 +8,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
+    return redirect()->route('vouchers.index');
 });
 
 Route::get('/dashboard', function () {
@@ -25,12 +21,14 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-/* Route::middleware('auth')->group(function () { */
+Route::middleware('auth')->group(function () {
 
     Route::get('/vouchers', [VoucherController::class, 'index'])->name('vouchers.index');
     Route::post('/vouchers', [VoucherController::class, 'store'])->name('vouchers.store');
     Route::put('/vouchers/{voucher}', [VoucherController::class, 'update'])->name('vouchers.update');
     Route::delete('/vouchers/{voucher}', [VoucherController::class, 'destroy'])->name('vouchers.destroy');
-/* }); */
+
+    Route::get('vouchers/print/{voucher}', [PdfController::class, 'printPdfVoucher'])->name('vouchers.print');
+});
 
 require __DIR__ . '/auth.php';
