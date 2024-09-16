@@ -7,6 +7,7 @@ import ModalVoucher from './partials/ModalVoucher.vue';
 import { PlusIcon, TrashIcon } from '@heroicons/vue/24/solid'
 import Pagination from './partials/Pagination.vue';
 import ConfirmDeleteModal from '@/Components/partials/ConfirmDeleteModal.vue';
+import ModalVoucherInfo from './partials/ModalVoucherInfo.vue';
 
 const columns = [
     { header: '#', key: 'voucher_number' },
@@ -21,9 +22,11 @@ const columns = [
 
 const showModal = ref(false);
 const showDeleteModal = ref(false);
+const showInfoModal = ref(false);
 const isEditing = ref(false);
 const currentVoucher = ref(null);
 const voucherToDelete = ref(null);
+const voucherToShow = ref(null);
 defineProps({ vouchers: Array });
 
 const form = useForm({
@@ -74,6 +77,14 @@ const openModal = () => {
         resetData();
     }
     showModal.value = true;
+};
+
+const openShowInfoModal = () => {
+    showInfoModal.value = true;
+};
+
+const closeShowInfoModal = () => {
+    showInfoModal.value = false;
 };
 
 const openDeleteModal = (voucher) => {
@@ -140,6 +151,11 @@ const handleEditVoucher = (voucher) => {
     openModal();
 };
 
+const handleShowInfo = (voucher) => {
+    voucherToShow.value = voucher;
+    openShowInfoModal();
+};
+
 const addItem = () => {
     form.items.push({
         quantity: 0,
@@ -194,8 +210,7 @@ const titleModal = computed(() => {
                             Agregar Nuevo Vale
                         </button>
                         <ModalVoucher v-model:show="showModal" :formData="form" :title="titleModal"
-                            :actionButtonText="actionButtonText" @submit="saveVoucher"
-                            @close="closeModal">
+                            :actionButtonText="actionButtonText" @submit="saveVoucher" @close="closeModal">
                             <template #default="{ formData }">
                                 <div class="grid grid-cols-2 gap-4">
                                     <div class="col-span-2">
@@ -256,7 +271,8 @@ const titleModal = computed(() => {
                                                 </div>
                                                 <div>
                                                     <label :for="'unit_price-' + index"
-                                                        class="block text-sm font-medium text-gray-700">Precio Unitario</label>
+                                                        class="block text-sm font-medium text-gray-700">Precio
+                                                        Unitario</label>
                                                     <input type="number" v-model="item.unit_price"
                                                         :id="'unit_price-' + index" step="0.01" required
                                                         class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
@@ -285,10 +301,13 @@ const titleModal = computed(() => {
                             </template>
                         </ModalVoucher>
                     </div>
-                    <ConfirmDeleteModal :show="showDeleteModal" :entity="'Vale'" @close="closeDeleteModal" @confirm="deleteVoucher" />
+                    <ConfirmDeleteModal :show="showDeleteModal" :entity="'Vale'" @close="closeDeleteModal"
+                        @confirm="deleteVoucher" />
+                    <ModalVoucherInfo :show="showInfoModal" :voucher="voucherToShow" @close="closeShowInfoModal"/>
+
                     <DataTable title="Vouchers" :columns="columns" :data="vouchers.data"
-                        @edit-voucher="handleEditVoucher"
-                        @delete-voucher="openDeleteModal"/>
+                        @edit-voucher="handleEditVoucher" @delete-voucher="openDeleteModal"
+                        @info-voucher="handleShowInfo" />
                     <Pagination :currentPage="vouchers.current_page" :totalItems="vouchers.total"
                         :itemsPerPage="vouchers.per_page" />
                 </div>

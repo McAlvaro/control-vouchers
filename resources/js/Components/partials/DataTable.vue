@@ -14,7 +14,7 @@ defineProps({
     }
 })
 
-const emit = defineEmits(['edit-voucher', 'delete-voucher'])
+const emit = defineEmits(['edit-voucher', 'delete-voucher', 'info-voucher'])
 </script>
 <template>
     <div class="bg-white shadow-md rounded px-8 pt-6 pb-8">
@@ -40,7 +40,7 @@ const emit = defineEmits(['edit-voucher', 'delete-voucher'])
                         {{ column.render ? column.render(row[column.key]) : row[column.key] }}
                     </td>
                     <td class="px-5 py-2 border-b border-gray-200 bg-white text-sm">
-                        <button @click="$emit('edit-voucher', row)" class="text-blue-600 hover:text-blue-900 mr-2">
+                        <button @click="$emit('info-voucher', row)" class="text-blue-600 hover:text-blue-900 mr-2">
                             <EyeIcon class="h-5 w-5" />
                         </button>
                         <button @click="$emit('edit-voucher', row)" class="text-blue-600 hover:text-blue-900 mr-2">
