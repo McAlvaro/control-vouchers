@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voucher</title>
+    <title>Vale - {{$data['voucher_number']}}</title>
 </head>
 
 <style>
@@ -20,7 +20,7 @@
     #detail-table td {
         border: 1px solid #000;
         padding: 2px;
-        text-align: left;
+        text-align: center;
         font-size: 11pt;
     }
 
@@ -82,7 +82,7 @@
         </div>
         <table id="detail-table" style="width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px; padding: 10px 20px;">
+            margin-bottom: 20px; padding: 10px 70px;">
             <tr>
                 <th>CANTIDAD</th>
                 <th>DESCRIPCION</th>
@@ -150,7 +150,7 @@
         </div>
         <table id="detail-table" style="width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px; padding: 10px 20px;">
+            margin-bottom: 20px; padding: 10px 70px;">
             <tr>
                 <th>CANTIDAD</th>
                 <th>DESCRIPCION</th>
