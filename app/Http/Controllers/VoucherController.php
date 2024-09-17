@@ -47,7 +47,7 @@ class VoucherController extends Controller
     {
         $voucher = $this->voucherService->createVoucher(Auth::user(), $request->all());
 
-        return redirect()->route('vouchers.index')->with('success', 'Voucher creado exisitosamente');
+        return redirect()->route('vouchers.index')->with('voucher', $voucher->toArray());
     }
 
     /**

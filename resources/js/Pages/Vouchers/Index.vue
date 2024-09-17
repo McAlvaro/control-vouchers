@@ -1,7 +1,7 @@
 <script setup>
 import DataTable from '@/Components/partials/DataTable.vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 import ModalVoucher from './partials/ModalVoucher.vue';
 import { PlusIcon, TrashIcon } from '@heroicons/vue/24/solid'
@@ -16,7 +16,7 @@ const columns = [
     { header: 'Vehiculo', key: 'vehicle' },
     { header: 'Placa', key: 'plate' },
     { header: 'ES', key: 'station_name' },
-    { header: 'Status', key: 'status', render: (value) => value === 'active' ? 'Active' : 'Cancelled' },
+    //{ header: 'Status', key: 'state', render: (value) => value === 'ACTIVE' ? 'Active' : 'Cancelled' },
     { header: 'Total', key: 'total_amount', render: (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'BOB' }).format(value) }
 ];
 
@@ -27,7 +27,7 @@ const isEditing = ref(false);
 const currentVoucher = ref(null);
 const voucherToDelete = ref(null);
 const voucherToShow = ref(null);
-defineProps({ vouchers: Array });
+const props = defineProps({ vouchers: Array, data_session: Object });
 
 const form = useForm({
     date: '',
@@ -137,7 +137,9 @@ const saveVoucher = () => {
         form.post(route('vouchers.store'), {
             onSuccess: () => {
                 showModal.value = false;
+                const voucherSaved = props.data_session.voucher;
                 resetData();
+                handleShowInfo(voucherSaved)
             },
             onError: (errors) => {
                 console.error('Errores: ', errors);
@@ -177,6 +179,7 @@ const resetData = () => {
     form.reset();
     totalAmount.value = 0;
     currentVoucher.value = null;
+    props.data_session.voucher = null;
 };
 
 function roundTo(num, precision) {

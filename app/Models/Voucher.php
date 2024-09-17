@@ -31,7 +31,7 @@ class Voucher extends Model
     {
         $lastVoucher = DB::table('vouchers')->orderBy('id', 'desc')->first();
 
-        $nextNumber = $lastVoucher ? (int) $lastVoucher->voucher_number + 1 : 1;
+        $nextNumber = $lastVoucher ? (int) $lastVoucher->id + 1 : 1;
 
         return str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
     }
