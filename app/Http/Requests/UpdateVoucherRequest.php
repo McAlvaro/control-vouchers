@@ -30,7 +30,7 @@ class UpdateVoucherRequest extends FormRequest
             'station_name' => 'required|string',
             'total_amount' => 'required|decimal:1,2',
             'items' => 'required|array',
-            'items.*.quantity' => 'required|decimal:1,2',
+            'items.*.quantity' => 'required|integer',
             'items.*.description' => 'required|string',
             'items.*.unit_price' => 'required|decimal:1,2',
             'items.*.total_price' => 'required|decimal:1,2',

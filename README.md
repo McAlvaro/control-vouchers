@@ -44,7 +44,12 @@ DB_PASSWORD=
 php artisan migrate
 ```
 
-5. Levantar servidor de desarrollo
+5. Ejecutar el siguiente comando para crear enlace simbolico de storage
+```shell
+php artisan storage:link
+```
+
+6. Levantar servidor de desarrollo
 
 ```shell
 php artisan serve
