@@ -29,8 +29,6 @@ class PdfService implements IPdfService
      */
     private function makePdf(array $data, string $view): PdfInstace
     {
-        Log::debug('Data to Print: ' . json_encode($data));
-
         $pdf = Pdf::loadView($view, ['data' => $data, 'logo' => $this->getLogoBase64()])
             ->setPaper('letter')
             ->setWarnings(true)

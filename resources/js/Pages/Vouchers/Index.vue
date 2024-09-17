@@ -306,7 +306,7 @@ const titleModal = computed(() => {
                     </div>
                     <ConfirmDeleteModal :show="showDeleteModal" :entity="'Vale'" @close="closeDeleteModal"
                         @confirm="deleteVoucher" />
-                    <ModalVoucherInfo :show="showInfoModal" :voucher="voucherToShow" @close="closeShowInfoModal"/>
+                    <ModalVoucherInfo :show="showInfoModal" :voucher="voucherToShow" @close="closeShowInfoModal" />
 
                     <DataTable title="Vouchers" :columns="columns" :data="vouchers.data"
                         @edit-voucher="handleEditVoucher" @delete-voucher="openDeleteModal"
