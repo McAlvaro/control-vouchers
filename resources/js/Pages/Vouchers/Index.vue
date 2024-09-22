@@ -280,7 +280,7 @@ const resetFilters = () => {
                                     <input v-model="to_date" type="date" id="to_date"
                                         class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                                 </div>
-                                <button @click="resetFilters" class="text-blue-500 ml-2 mb-2">Borrar Filtros</button>
+                                <button @click="resetFilters" class="text-blue-500 text-sm underline hover:text-blue-600 ml-2 mb-2">Borrar Filtros</button>
                             </div>
                         </div>
                         <button @click="openModal"
