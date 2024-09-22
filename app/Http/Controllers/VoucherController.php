@@ -6,6 +6,7 @@ use App\Http\Requests\StoreVoucherRequest;
 use App\Http\Requests\UpdateVoucherRequest;
 use App\Models\Voucher;
 use App\Services\Contracts\IVoucherService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -22,9 +23,12 @@ class VoucherController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $vouchers = $this->voucherService->getAll();
+        $vouchers = $this->voucherService->getAll(
+            $request->get('delivery_to') ?? '',
+            $request->get('plate') ?? ''
+        );
 
         return Inertia::render(component: 'Vouchers/Index', props: [
             'vouchers' => $vouchers

@@ -58,9 +58,14 @@ class VoucherService implements IVoucherService
         }
     }
 
-    public function getAll(): LengthAwarePaginator
+    public function getAll(string $delivery_to = "", string $plate = ""): LengthAwarePaginator
     {
-        $vouchers = Voucher::query()->with('items')->orderBy(column: 'id', direction: 'desc')->paginate(perPage: 10);
+        $vouchers = Voucher::query()
+            ->with('items')
+            ->where('delivery_to', 'LIKE', "%$delivery_to%")
+            ->where('plate', 'LIKE', "%$plate%")
+            ->orderBy(column: 'id', direction: 'desc')
+            ->paginate(perPage: 10);
 
         return $vouchers;
     }

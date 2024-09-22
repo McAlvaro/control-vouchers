@@ -1,7 +1,7 @@
 <script setup>
 import DataTable from '@/Components/partials/DataTable.vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Head, useForm, usePage } from '@inertiajs/vue3';
+import { Head, router, useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 import ModalVoucher from './partials/ModalVoucher.vue';
 import { PlusIcon, TrashIcon } from '@heroicons/vue/24/solid'
@@ -28,6 +28,8 @@ const currentVoucher = ref(null);
 const voucherToDelete = ref(null);
 const voucherToShow = ref(null);
 const props = defineProps({ vouchers: Array, data_session: Object });
+const delivery_to = ref('')
+const plate = ref('')
 
 const form = useForm({
     date: '',
@@ -56,6 +58,22 @@ watch(
     },
     { deep: true }  // Observar cambios dentro de los objetos de la lista
 );
+
+const fetchVouchers = () => {
+    const filters = {};
+
+    if(delivery_to.value.length > 0){
+        filters['delivery_to'] = delivery_to.value;
+    }
+    if(plate.value.length > 0){
+        filters['plate'] = plate.value;
+    }
+    router.get(route('vouchers.index', filters), {}, { preserveState: true });
+};
+
+watch(delivery_to, fetchVouchers);
+
+watch(plate, fetchVouchers);
 
 const openModal = () => {
     console.log('currentVoucher: ', currentVoucher);
@@ -205,9 +223,27 @@ const titleModal = computed(() => {
         <!-- Contenido del slot por defecto -->
         <div class="py-12">
             <div class="max-w-full mx-auto sm:px-6 lg:px-8">
+                <h1 class="text-3xl mr-8 font-semibold text-gray-800">Vales</h1>
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="flex justify-between items-center mt-3 mx-8">
-                        <h1 class="text-3xl font-semibold text-gray-800">Vales</h1>
+                        <div class="flex flex-row">
+                            <div class="flex flex-row justify-center items-center">
+                                <div class="flex flex-row w-60 justify-center items-center">
+                                    <label for="small-input"
+                                        class="inline-block text-sm font-medium p-2 text-gray-900 mr-2">Chofer:
+                                    </label>
+                                    <input v-model="delivery_to" placeholder="Buscar Chofer" type="text" id="small-input"
+                                        class="inline-block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 ">
+                                </div>
+                                <div class="flex flex-row w-60 justify-center items-center">
+                                    <label for="small-input"
+                                        class="inline-block text-sm font-medium p-2 text-gray-900 mr-2">Placa:
+                                    </label>
+                                    <input v-model="plate" placeholder="Buscar Placa" type="text" id="small-input"
+                                        class="inline-block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 ">
+                                </div>
+                            </div>
+                        </div>
                         <button @click="openModal"
                             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                             Agregar Nuevo Vale
