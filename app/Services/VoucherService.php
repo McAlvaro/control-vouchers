@@ -5,6 +5,9 @@ namespace App\Services;
 use App\Models\User;
 use App\Models\Voucher;
 use App\Services\Contracts\IVoucherService;
+use App\Services\Filters\DateFilter;
+use App\Services\Filters\Vouchers\DeliveryToFilter;
+use App\Services\Filters\Vouchers\PlateFilter;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class VoucherService implements IVoucherService
@@ -49,7 +52,6 @@ class VoucherService implements IVoucherService
             $voucher->items()->whereIn('id', $itemsToDelete)->delete();
         }
 
-        // Actualizar o crear nuevos items
         foreach ($items as $item) {
             $voucher->items()->updateOrCreate(
                 ['id' => $item['id'] ?? 0], // Buscar por id para actualizar
@@ -58,16 +60,21 @@ class VoucherService implements IVoucherService
         }
     }
 
-    public function getAll(string $delivery_to = "", string $plate = ""): LengthAwarePaginator
+    public function getAll(string $delivery_to = null, string $plate = null, string $from_date = null, string $to_date = null): LengthAwarePaginator
     {
-        $vouchers = Voucher::query()
+        $query = Voucher::query()
             ->with('items')
-            ->where('delivery_to', 'LIKE', "%$delivery_to%")
-            ->where('plate', 'LIKE', "%$plate%")
-            ->orderBy(column: 'id', direction: 'desc')
-            ->paginate(perPage: 10);
+            ->orderBy(column: 'id', direction: 'desc');
 
-        return $vouchers;
+        $query = DeliveryToFilter::apply($query, $delivery_to);
+
+        $query = PlateFilter::apply($query, $plate);
+
+        if (! is_null($from_date)) {
+            $query = DateFilter::apply($query, $from_date, $to_date, Voucher::getTableName(), 'date');
+        }
+
+        return $query->paginate(10);
     }
 
     public function updateVoucher(Voucher $voucher, array $voucherData): Voucher

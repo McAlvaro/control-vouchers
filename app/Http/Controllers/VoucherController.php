@@ -8,6 +8,7 @@ use App\Models\Voucher;
 use App\Services\Contracts\IVoucherService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -26,12 +27,15 @@ class VoucherController extends Controller
     public function index(Request $request): Response
     {
         $vouchers = $this->voucherService->getAll(
-            $request->get('delivery_to') ?? '',
-            $request->get('plate') ?? ''
+            $request->get('delivery_to') ?? null,
+            $request->get('plate') ?? null,
+            $request->get('from_date') ?? null,
+            $request->get('to_date') ?? null
         );
 
         return Inertia::render(component: 'Vouchers/Index', props: [
-            'vouchers' => $vouchers
+            'vouchers' => $vouchers,
+            'filters' => $request->only(['delivery_to', 'plate', 'from_date', 'to_date'])
         ]);
     }
 

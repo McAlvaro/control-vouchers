@@ -21,6 +21,6 @@ interface IVoucherService
 
     public function destroy(Voucher $voucher): void;
 
-    public function getAll(string $delivery_to = "", string $plate = ""): LengthAwarePaginator;
+    public function getAll(string $delivery_to = null, string $plate = null, string $from_date = null, string $to_date = null): LengthAwarePaginator;
 }
 

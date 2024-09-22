@@ -11,7 +11,7 @@ import ModalVoucherInfo from './partials/ModalVoucherInfo.vue';
 
 const columns = [
     { header: '#', key: 'voucher_number' },
-    { header: 'Fecha', key: 'date', render: (value) => new Date(value).toLocaleDateString() },
+    { header: 'Fecha', key: 'date' },
     { header: 'Chofer', key: 'delivery_to' },
     { header: 'Vehiculo', key: 'vehicle' },
     { header: 'Placa', key: 'plate' },
@@ -27,9 +27,11 @@ const isEditing = ref(false);
 const currentVoucher = ref(null);
 const voucherToDelete = ref(null);
 const voucherToShow = ref(null);
-const props = defineProps({ vouchers: Array, data_session: Object });
-const delivery_to = ref('')
-const plate = ref('')
+let props = defineProps({ vouchers: Array, filters: Object, data_session: Object });
+let delivery_to = ref(props.filters.delivery_to ? props.filters.delivery_to : '')
+let plate = ref(props.filters.plate ? props.filters.plate : '')
+let from_date = ref(props.filters.from_date ? props.filters.from_date : '')
+let to_date = ref(props.filters.to_date ? props.filters.to_date : '')
 
 const form = useForm({
     date: '',
@@ -62,18 +64,31 @@ watch(
 const fetchVouchers = () => {
     const filters = {};
 
-    if(delivery_to.value.length > 0){
+    if (delivery_to.value.length > 0) {
         filters['delivery_to'] = delivery_to.value;
     }
-    if(plate.value.length > 0){
+    if (plate.value.length > 0) {
         filters['plate'] = plate.value;
     }
+
+    if (from_date.value.length > 0) {
+        filters['from_date'] = from_date.value;
+    }
+
+    if (to_date.value.length > 0) {
+        filters['to_date'] = to_date.value;
+    }
+
     router.get(route('vouchers.index', filters), {}, { preserveState: true });
 };
 
 watch(delivery_to, fetchVouchers);
 
 watch(plate, fetchVouchers);
+
+watch(from_date, fetchVouchers);
+
+watch(to_date, fetchVouchers);
 
 const openModal = () => {
     console.log('currentVoucher: ', currentVoucher);
@@ -210,6 +225,14 @@ const actionButtonText = computed(() => {
 const titleModal = computed(() => {
     return isEditing.value ? 'Editar Vale' : 'Nuevo Vale';
 });
+
+const resetFilters = () => {
+
+    delivery_to.value = '';
+    plate.value = '';
+    from_date.value = '';
+    to_date.value = '';
+};
 </script>
 
 <template>
@@ -232,7 +255,8 @@ const titleModal = computed(() => {
                                     <label for="small-input"
                                         class="inline-block text-sm font-medium p-2 text-gray-900 mr-2">Chofer:
                                     </label>
-                                    <input v-model="delivery_to" placeholder="Buscar Chofer" type="text" id="small-input"
+                                    <input v-model="delivery_to" placeholder="Buscar Chofer" type="text"
+                                        id="small-input"
                                         class="inline-block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 ">
                                 </div>
                                 <div class="flex flex-row w-60 justify-center items-center">
@@ -242,6 +266,21 @@ const titleModal = computed(() => {
                                     <input v-model="plate" placeholder="Buscar Placa" type="text" id="small-input"
                                         class="inline-block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 ">
                                 </div>
+                                <div class="flex flex-row w-60 justify-center items-center">
+                                    <label for="small-input"
+                                        class="inline-block text-sm font-medium p-2 text-gray-900 mr-2">Desde:
+                                    </label>
+                                    <input v-model="from_date" type="date" id="from_date"
+                                        class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                </div>
+                                <div class="flex flex-row w-60 justify-center items-center">
+                                    <label for="small-input"
+                                        class="inline-block text-sm font-medium p-2 text-gray-900 mr-2">Hasta:
+                                    </label>
+                                    <input v-model="to_date" type="date" id="to_date"
+                                        class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                </div>
+                                <button @click="resetFilters" class="text-blue-500 ml-2 mb-2">Borrar Filtros</button>
                             </div>
                         </div>
                         <button @click="openModal"
