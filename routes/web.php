@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\PdfController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\VoucherController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +30,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/vouchers/{voucher}', [VoucherController::class, 'destroy'])->name('vouchers.destroy');
 
     Route::get('vouchers/print/{voucher}', [PdfController::class, 'printPdfVoucher'])->name('vouchers.print');
+    Route::get('vouchers/export', [ReportController::class, 'downloadVochersToExcel'])->name('vouchers.export');
 });
 
 require __DIR__ . '/auth.php';

@@ -61,7 +61,8 @@ watch(
     { deep: true }  // Observar cambios dentro de los objetos de la lista
 );
 
-const fetchVouchers = () => {
+const buildFilters = () => {
+
     const filters = {};
 
     if (delivery_to.value.length > 0) {
@@ -78,6 +79,12 @@ const fetchVouchers = () => {
     if (to_date.value.length > 0) {
         filters['to_date'] = to_date.value;
     }
+
+    return filters;
+}
+
+const fetchVouchers = () => {
+    const filters = buildFilters();
 
     router.get(route('vouchers.index', filters), {}, { preserveState: true });
 };
@@ -280,13 +287,21 @@ const resetFilters = () => {
                                     <input v-model="to_date" type="date" id="to_date"
                                         class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                                 </div>
-                                <button @click="resetFilters" class="text-blue-500 text-sm underline hover:text-blue-600 ml-2 mb-2">Borrar Filtros</button>
+                                <button @click="resetFilters"
+                                    class="text-blue-500 text-sm underline hover:text-blue-600 ml-2 mb-2">Borrar
+                                    Filtros</button>
                             </div>
                         </div>
-                        <button @click="openModal"
-                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                            Agregar Nuevo Vale
-                        </button>
+                        <div class="inline-block">
+                            <a :href="route('vouchers.export', buildFilters())" target="_blank"
+                                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mx-2">
+                                Exportar
+                            </a>
+                            <button @click="openModal"
+                                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                Agregar Nuevo Vale
+                            </button>
+                        </div>
                         <ModalVoucher v-model:show="showModal" :formData="form" :title="titleModal"
                             :actionButtonText="actionButtonText" @submit="saveVoucher" @close="closeModal">
                             <template #default="{ formData }">
