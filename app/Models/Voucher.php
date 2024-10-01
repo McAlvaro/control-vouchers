@@ -42,4 +42,12 @@ class Voucher extends Model
     {
         return $this->hasMany(VoucherItem::class);
     }
+
+    public function contract(){
+        return $this->belongsTo(Contract::class);
+    }
+
+    public function refunds(){
+        return $this->hasMany(Refund::class);
+    }
 }
