@@ -41,7 +41,7 @@ class VoucherTest extends TestCase
 
         $items = [
             [
-                'quantity' => number_format($this->faker->numberBetween(1, 100), 2),
+                'quantity' => $this->faker->numberBetween(1, 100),
                 'description' => $this->faker->randomElement(['Gasolina', 'Diesel', 'Otros']),
                 'unit_price' => number_format($this->faker->randomFloat(2, 1, 5), 2),
                 'total_price' => number_format($this->faker->randomFloat(2, 50, 200), 2),
@@ -87,7 +87,7 @@ class VoucherTest extends TestCase
 
         $items = [
             [
-                'quantity' => number_format($this->faker->numberBetween(1, 100), 2),
+                'quantity' => $this->faker->numberBetween(1, 100),
                 'description' => $this->faker->randomElement(['Gasolina', 'Diesel', 'Otros']),
                 'unit_price' => number_format($this->faker->randomFloat(2, 1, 5), 2),
                 'total_price' => number_format($this->faker->randomFloat(2, 50, 200), 2),
@@ -136,7 +136,7 @@ class VoucherTest extends TestCase
 
         $items = [
             [
-                'quantity' => number_format($this->faker->numberBetween(1, 100), 2),
+                'quantity' => $this->faker->numberBetween(1, 100),
                 'description' => $this->faker->randomElement(['Gasolina', 'Diesel', 'Otros']),
                 'unit_price' => number_format($this->faker->randomFloat(2, 1, 5), 2),
                 'total_price' => number_format($this->faker->randomFloat(2, 50, 200), 2),
