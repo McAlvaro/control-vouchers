@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Services\Contracts\IContractService;
 use App\Services\Contracts\IPdfService;
 use App\Services\Contracts\IVoucherService;
 use App\Services\Contracts\IVouherExportService;
+use App\Services\ContractService;
 use App\Services\PdfService;
 use App\Services\VoucherExportService;
 use App\Services\VoucherService;
@@ -20,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(abstract: IVoucherService::class, concrete: VoucherService::class);
         $this->app->bind(abstract: IPdfService::class, concrete: PdfService::class);
         $this->app->bind(abstract: IVouherExportService::class, concrete: VoucherExportService::class);
+        $this->app->bind(abstract: IContractService::class, concrete: ContractService::class);
     }
 
     /**
