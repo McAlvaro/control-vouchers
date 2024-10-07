@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ContractController;
 use App\Http\Controllers\PdfController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
@@ -31,6 +32,11 @@ Route::middleware('auth')->group(function () {
 
     Route::get('vouchers/print/{voucher}', [PdfController::class, 'printPdfVoucher'])->name('vouchers.print');
     Route::get('vouchers/export', [ReportController::class, 'downloadVochersToExcel'])->name('vouchers.export');
+
+    Route::get('/contracts', [ContractController::class, 'index'])->name('contracts.index');
+    Route::post('/contracts', [ContractController::class, 'store'])->name('contracts.store');
+    Route::put('/contracts/{contract}', [ContractController::class, 'update'])->name('contracts.update');
+    Route::delete('/contracts/{contract}', [ContractController::class, 'destroy'])->name('contracts.destroy');
 });
 
 require __DIR__ . '/auth.php';
