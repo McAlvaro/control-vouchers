@@ -26,9 +26,11 @@ class StoreContractRequest extends FormRequest
             'station_nit' => 'required|string',
             'city' => 'required|string',
             'contract_number' => 'required|string',
+            'fuel_type' => 'required|string',
             'start_date' => 'required|date',
             'end_date' => 'required|date',
             'quantity' => 'required|integer',
+            'balance' => 'required|integer',
             'unit_price' => 'required|decimal:1,2',
             'total_amount' => 'required|decimal:1,2'
         ];
