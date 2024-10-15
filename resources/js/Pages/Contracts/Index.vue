@@ -1,9 +1,9 @@
 <script setup>
 import DataTable from '@/Components/partials/DataTable.vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, router, useForm } from '@inertiajs/vue3';
 import Pagination from '../Vouchers/partials/Pagination.vue';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import ModalVoucher from '../Vouchers/partials/ModalVoucher.vue';
 import ConfirmDeleteModal from '@/Components/partials/ConfirmDeleteModal.vue';
 import ModalContractInfo from '../Vouchers/partials/ModalContractInfo.vue';
@@ -27,6 +27,8 @@ const contractToDelete = ref(null);
 const contractToShow = ref(null);
 const showInfoModal = ref(false);
 const isEditing = ref(false);
+let contract_number = ref(props.filters.contract_number ? props.filters.contract_number : '');
+let station_name = ref(props.filters.station_name ? props.filters.station_name : '');
 
 const form = useForm({
     station_name: '',
@@ -144,7 +146,8 @@ const openShowInfoModal = () => {
 
 const resetFilters = () => {
 
-    console.log("Reset Filters.....");
+    contract_number.value = '';
+    station_name.value = '';
 };
 
 const closeModal = () => {
@@ -175,6 +178,31 @@ const closeDeleteModal = () => {
     contractToDelete.value = null;
 };
 
+const buildFilters = () => {
+
+    const filters = {};
+
+    if (contract_number.value.length > 0) {
+        filters['contract_number'] = contract_number.value;
+    }
+    if (station_name.value.length > 0) {
+        filters['station_name'] = station_name.value;
+    }
+
+    return filters;
+}
+
+
+const fetchContracts = () => {
+    const filters = buildFilters();
+
+    router.get(route('contracts.index', filters), {}, { preserveState: true });
+};
+
+watch(contract_number, fetchContracts);
+
+watch(station_name, fetchContracts);
+
 </script>
 <template>
 
@@ -191,31 +219,17 @@ const closeDeleteModal = () => {
                             <div class="flex flex-row justify-center items-center">
                                 <div class="flex flex-row w-60 justify-center items-center">
                                     <label for="small-input"
-                                        class="inline-block text-sm font-medium p-2 text-gray-900 mr-2">Chofer:
+                                        class="inline-block text-sm font-medium p-2 text-gray-900 mr-2">Contrato:
                                     </label>
-                                    <input placeholder="Buscar Chofer" type="text" id="small-input"
+                                    <input v-model="contract_number" placeholder="Buscar Nro Contrato" type="text" id="contract_number"
                                         class="inline-block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 ">
                                 </div>
                                 <div class="flex flex-row w-60 justify-center items-center">
                                     <label for="small-input"
-                                        class="inline-block text-sm font-medium p-2 text-gray-900 mr-2">Placa:
+                                        class="inline-block text-sm font-medium p-2 text-gray-900 mr-2">Surtidor:
                                     </label>
-                                    <input placeholder="Buscar Placa" type="text" id="small-input"
+                                    <input v-model="station_name" placeholder="Buscar Surtidor" type="text" id="station_name"
                                         class="inline-block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 ">
-                                </div>
-                                <div class="flex flex-row w-60 justify-center items-center">
-                                    <label for="small-input"
-                                        class="inline-block text-sm font-medium p-2 text-gray-900 mr-2">Desde:
-                                    </label>
-                                    <input type="date" id="from_date"
-                                        class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-                                </div>
-                                <div class="flex flex-row w-60 justify-center items-center">
-                                    <label for="small-input"
-                                        class="inline-block text-sm font-medium p-2 text-gray-900 mr-2">Hasta:
-                                    </label>
-                                    <input type="date" id="to_date"
-                                        class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                                 </div>
                                 <button @click="resetFilters"
                                     class="text-blue-500 text-sm underline hover:text-blue-600 ml-2 mb-2">Borrar

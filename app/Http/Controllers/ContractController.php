@@ -24,7 +24,7 @@ class ContractController extends Controller
 
         $contracts = $this->contractService->getAll(
             $request->get('station_name') ?? null,
-            $request->get('station_nit') ?? null
+            $request->get('contract_number') ?? null
         );
 
         return Inertia::render(component: 'Contracts/Index', props: [
