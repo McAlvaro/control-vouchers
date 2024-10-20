@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreVoucherRequest;
 use App\Http\Requests\UpdateVoucherRequest;
 use App\Models\Voucher;
+use App\Services\Contracts\IContractService;
 use App\Services\Contracts\IVoucherService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,9 +17,12 @@ class VoucherController extends Controller
 {
     private $voucherService;
 
-    function __construct(IVoucherService $voucherService)
+    private $contractService;
+
+    function __construct(IVoucherService $voucherService, IContractService $contractService)
     {
         $this->voucherService = $voucherService;
+        $this->contractService = $contractService;
     }
 
     /**
@@ -33,8 +37,11 @@ class VoucherController extends Controller
             $request->get('to_date') ?? null
         );
 
+        $contracts = $this->contractService->getCurrentContracts();
+
         return Inertia::render(component: 'Vouchers/Index', props: [
             'vouchers' => $vouchers,
+            'contracts' => $contracts,
             'filters' => $request->only(['delivery_to', 'plate', 'from_date', 'to_date'])
         ]);
     }

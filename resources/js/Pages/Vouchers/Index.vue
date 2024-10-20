@@ -27,7 +27,8 @@ const isEditing = ref(false);
 const currentVoucher = ref(null);
 const voucherToDelete = ref(null);
 const voucherToShow = ref(null);
-let props = defineProps({ vouchers: Array, filters: Object, data_session: Object });
+const currentContract = ref(null);
+let props = defineProps({ vouchers: Array, filters: Object, data_session: Object, contracts: Array });
 let delivery_to = ref(props.filters.delivery_to ? props.filters.delivery_to : '')
 let plate = ref(props.filters.plate ? props.filters.plate : '')
 let from_date = ref(props.filters.from_date ? props.filters.from_date : '')
@@ -39,6 +40,7 @@ const form = useForm({
     vehicle: '',
     plate: '',
     station_name: '',
+    contract_id: '',
     kilometer: '',
     status: 'active',
     total_amount: 0,
@@ -60,6 +62,12 @@ watch(
     },
     { deep: true }  // Observar cambios dentro de los objetos de la lista
 );
+
+watch(
+    () => form.contract_id, (contract_id) => {
+        currentContract.value = props.contracts.find(item => item.id === contract_id);
+        console.log(currentContract);
+    }, { deep: true });
 
 const buildFilters = () => {
 
@@ -158,10 +166,12 @@ const deleteVoucher = () => {
 const saveVoucher = () => {
     // Actualizar total_amount directamente desde totalAmount
     const totalAmountValue = totalAmount.value;
+    const contractSelected = props.contracts.find(item => item.id === form.contract_id);
 
     if (isEditing.value) {
         // Actualizar voucher existente
         form.total_amount = totalAmountValue;
+        form.station_name = contractSelected.station_name;
         form.put(route('vouchers.update', form.id), {
             onSuccess: () => {
                 showModal.value = false;
@@ -174,6 +184,7 @@ const saveVoucher = () => {
     } else {
         // Crear nuevo voucher
         form.total_amount = totalAmountValue;
+        form.station_name = contractSelected.station_name;
         form.post(route('vouchers.store'), {
             onSuccess: () => {
                 showModal.value = false;
@@ -201,7 +212,7 @@ const handleShowInfo = (voucher) => {
 const addItem = () => {
     form.items.push({
         quantity: 0,
-        description: '',
+        description: currentContract.value.fuel_type,
         unit_price: 0,
         total_price: 0
     });
@@ -219,6 +230,7 @@ const resetData = () => {
     form.reset();
     totalAmount.value = 0;
     currentVoucher.value = null;
+    currentContract.value = null;
     props.data_session.voucher = null;
 };
 
@@ -315,8 +327,13 @@ const resetFilters = () => {
                                     <div class="col-span-2">
                                         <label for="station_name"
                                             class="block text-sm font-medium text-gray-700">Estación de Servicio</label>
-                                        <input type="text" v-model="form.station_name" id="delivery_to" required
+                                        <select v-model="form.contract_id" id="contract_id" required
                                             class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                            <option value="">Seleccionar una Estación</option>
+                                            <option v-for="contract in contracts" :key="contract.id"
+                                                :value="contract.id">{{ contract.station_name }} - {{ contract.fuel_type }}
+                                            </option>
+                                        </select>
                                     </div>
                                     <!-- Campos personalizados -->
                                     <div>
@@ -344,14 +361,19 @@ const resetFilters = () => {
                                     <!-- Puedes añadir más campos personalizados aquí -->
                                     <!-- Items section -->
                                     <div class="mt-6 col-span-2">
-                                        <h4 class="text-lg font-medium text-gray-900 mb-2">Items</h4>
+                                        <div class="flex flex-row items-center justify-between">
+                                            <h4 class="text-lg font-medium text-gray-900 mb-2">Items</h4>
+                                            <h4 class="text-lg font-light text-gray-900 mb-2">
+                                                <span v-show="currentContract"> Disponible: {{currentContract?.balance}}</span>
+                                            </h4>
+                                        </div>
                                         <div v-for="(item, index) in form.items" :key="index"
                                             class="border-t border-gray-200 pt-2 mb-2">
                                             <div class="grid grid-cols-3 gap-4">
                                                 <div>
                                                     <label :for="'description-' + index"
                                                         class="block text-sm font-medium text-gray-700">Descripción</label>
-                                                    <input type="text" v-model="item.description"
+                                                    <input type="text" v-model="item.description" :disabled="true"
                                                         :id="'description-' + index" rows="2" required
                                                         class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></input>
                                                 </div>
@@ -359,6 +381,7 @@ const resetFilters = () => {
                                                     <label :for="'quantity-' + index"
                                                         class="block text-sm font-medium text-gray-700">Cantidad</label>
                                                     <input type="number" v-model="item.quantity"
+                                                        :disabled="currentContract?.balance == 0"
                                                         :id="'quantity-' + index" step="0.01" required
                                                         class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                                                 </div>

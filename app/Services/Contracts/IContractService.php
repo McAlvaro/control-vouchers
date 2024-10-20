@@ -18,4 +18,10 @@ interface IContractService
     public function destroy(Contract $contract): void;
 
     public function getAll(string $station_name = null, string $contract_number = null): LengthAwarePaginator;
+
+    public function getCurrentContracts();
+
+    public function subtractBalance(int $contract_id, int $quantity);
+
+    public function addBalance(int $contract_id, int $quantity);
 }

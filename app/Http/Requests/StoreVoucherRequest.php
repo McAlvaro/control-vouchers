@@ -28,6 +28,7 @@ class StoreVoucherRequest extends FormRequest
             'plate' => 'required|string',
             'kilometer' => 'required|string',
             'station_name' => 'required|string',
+            'contract_id' => 'required|integer',
             'total_amount' => 'required|decimal:1,2',
             'items' => 'required|array',
             'items.*.quantity' => 'required|integer',

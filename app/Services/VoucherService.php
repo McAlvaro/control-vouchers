@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Models\Voucher;
+use App\Services\Contracts\IContractService;
 use App\Services\Contracts\IVoucherService;
 use App\Services\Filters\DateFilter;
 use App\Services\Filters\Vouchers\DeliveryToFilter;
@@ -12,6 +13,13 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class VoucherService implements IVoucherService
 {
+    private $contractService;
+
+    public function __construct(IContractService $contractService)
+    {
+        $this->contractService = $contractService;
+    }
+
     public function createVoucher(User $user, array $voucherData): Voucher
     {
         $voucher = Voucher::query()->create([
@@ -22,10 +30,16 @@ class VoucherService implements IVoucherService
             'kilometer' => $voucherData['kilometer'],
             'station_name' => $voucherData['station_name'],
             'total_amount' => $voucherData['total_amount'],
+            'contract_id' => $voucherData['contract_id'],
             'user_id' => $user->id
         ]);
 
         $this->saveItems($voucher, $voucherData['items']);
+
+        $this->contractService->subtractBalance(
+            $voucher->contract_id,
+            collect($voucherData['items'])->sum('quantity')
+        );
 
         return $voucher->load('items');
     }
