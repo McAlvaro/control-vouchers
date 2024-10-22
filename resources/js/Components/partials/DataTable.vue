@@ -49,6 +49,7 @@ const emit = defineEmits(['edit-voucher', 'delete-voucher', 'info-voucher'])
                         <button @click="$emit('delete-voucher', row)" class="text-red-600 hover:text-red-900">
                             <TrashIcon class="h-5 w-5" />
                         </button>
+                        <slot name="actions" :row="row"></slot>
                     </td>
                 </tr>
             </tbody>

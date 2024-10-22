@@ -4,10 +4,11 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, router, useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 import ModalVoucher from './partials/ModalVoucher.vue';
-import { PlusIcon, TrashIcon } from '@heroicons/vue/24/solid'
+import { PlusIcon, ReceiptRefundIcon, TrashIcon } from '@heroicons/vue/24/solid'
 import Pagination from './partials/Pagination.vue';
 import ConfirmDeleteModal from '@/Components/partials/ConfirmDeleteModal.vue';
 import ModalVoucherInfo from './partials/ModalVoucherInfo.vue';
+import RefundModal from './partials/RefundModal.vue';
 
 const columns = [
     { header: '#', key: 'voucher_number' },
@@ -23,8 +24,11 @@ const columns = [
 const showModal = ref(false);
 const showDeleteModal = ref(false);
 const showInfoModal = ref(false);
+const showRefundModal = ref(false);
 const isEditing = ref(false);
+const isRefundEditing = ref(false);
 const currentVoucher = ref(null);
+const currentRefundVoucher = ref(null);
 const voucherToDelete = ref(null);
 const voucherToShow = ref(null);
 const currentContract = ref(null);
@@ -45,6 +49,13 @@ const form = useForm({
     status: 'active',
     total_amount: 0,
     items: []
+});
+
+const refundForm = useForm({
+    voucher_id: null,
+    date: '',
+    invoice_number: '',
+    quantity: ''
 });
 
 const totalAmount = computed(() => {
@@ -127,6 +138,14 @@ const openModal = () => {
     showModal.value = true;
 };
 
+const openRefundModal = () => {
+    showRefundModal.value = true;
+};
+
+const closeRefundModal = () => {
+    showRefundModal.value = false;
+};
+
 const openShowInfoModal = () => {
     showInfoModal.value = true;
 };
@@ -199,9 +218,38 @@ const saveVoucher = () => {
     }
 };
 
+const saveRefundVoucher = () => {
+    if(isRefundEditing.value) {
+
+        console.log("Edit refund");
+    } else {
+        refundForm.voucher_id = currentRefundVoucher.value.id;
+        refundForm.post(route('refunds.store'), {
+            onSuccess: () => {
+                showRefundModal.value = false;
+                const refundSaved = props.data_session.refund;
+                resetData();
+                // handleShowInfo(voucherSaved)
+            },
+            onError: (errors) => {
+                console.error('Errores: ', errors);
+            }
+        });
+    }
+};
+
 const handleEditVoucher = (voucher) => {
     currentVoucher.value = voucher;
     openModal();
+};
+
+const handleRefundVoucher = (voucher) => {
+
+    console.log(voucher);
+
+    currentRefundVoucher.value = voucher;
+
+    openRefundModal();
 };
 
 const handleShowInfo = (voucher) => {
@@ -228,10 +276,13 @@ const formatCurrency = (value) => {
 
 const resetData = () => {
     form.reset();
+    refundForm.reset();
     totalAmount.value = 0;
     currentVoucher.value = null;
     currentContract.value = null;
+    currentRefundVoucher.value = null;
     props.data_session.voucher = null;
+    props.data_session.refund = null;
 };
 
 function roundTo(num, precision) {
@@ -241,8 +292,16 @@ const actionButtonText = computed(() => {
     return isEditing.value ? 'Actualizar' : 'Guardar';
 });
 
+const actionRefundButtonText = computed(() => {
+    return isRefundEditing.value ? 'Actualizar' : 'Guardar';
+});
+
 const titleModal = computed(() => {
     return isEditing.value ? 'Editar Vale' : 'Nuevo Vale';
+});
+
+const titleRefundModal = computed(() => {
+    return isRefundEditing.value ? 'Editar Devolución' : 'Formulario de Devolución';
 });
 
 const resetFilters = () => {
@@ -331,7 +390,8 @@ const resetFilters = () => {
                                             class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                                             <option value="">Seleccionar una Estación</option>
                                             <option v-for="contract in contracts" :key="contract.id"
-                                                :value="contract.id">{{ contract.station_name }} - {{ contract.fuel_type }}
+                                                :value="contract.id">{{ contract.station_name }} - {{ contract.fuel_type
+                                                }}
                                             </option>
                                         </select>
                                     </div>
@@ -364,7 +424,8 @@ const resetFilters = () => {
                                         <div class="flex flex-row items-center justify-between">
                                             <h4 class="text-lg font-medium text-gray-900 mb-2">Items</h4>
                                             <h4 class="text-lg font-light text-gray-900 mb-2">
-                                                <span v-show="currentContract"> Disponible: {{currentContract?.balance}}</span>
+                                                <span v-show="currentContract"> Disponible:
+                                                    {{ currentContract?.balance }}</span>
                                             </h4>
                                         </div>
                                         <div v-for="(item, index) in form.items" :key="index"
@@ -416,6 +477,30 @@ const resetFilters = () => {
                                 </div>
                             </template>
                         </ModalVoucher>
+                        <RefundModal v-model:show="showRefundModal" :formData="refundForm" :title="titleRefundModal"
+                            :actionButtonText="actionRefundButtonText" @submit="saveRefundVoucher" @close="closeRefundModal">
+                            <template #default="{ formData }">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="refund_date" class="block text-sm font-medium text-gray-700">Fecha</label>
+                                        <input type="date" v-model="refundForm.date" id="refund_date" required
+                                            class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                    </div>
+                                    <div>
+                                        <label for="invoice_number"
+                                            class="block text-sm font-medium text-gray-700">Nro Factura</label>
+                                        <input type="text" v-model="refundForm.invoice_number" id="invoice_number" required
+                                            class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                    </div>
+                                    <div>
+                                        <label for="refund_quantity"
+                                            class="block text-sm font-medium text-gray-700">Cantidad</label>
+                                        <input type="text" v-model="refundForm.quantity" id="refund_quantity" required
+                                            class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                    </div>
+                                </div>
+                            </template>
+                        </RefundModal>
                     </div>
                     <ConfirmDeleteModal :show="showDeleteModal" :entity="'Vale'" @close="closeDeleteModal"
                         @confirm="deleteVoucher" />
@@ -423,7 +508,13 @@ const resetFilters = () => {
 
                     <DataTable title="Vouchers" :columns="columns" :data="vouchers.data"
                         @edit-voucher="handleEditVoucher" @delete-voucher="openDeleteModal"
-                        @info-voucher="handleShowInfo" />
+                        @info-voucher="handleShowInfo">
+                        <template #actions="{ row }">
+                            <button @click="handleRefundVoucher(row)" class="text-blue-600 hover:text-blue-900">
+                                <ReceiptRefundIcon class="h-5 w-5" />
+                            </button>
+                        </template>
+                    </DataTable>
                     <Pagination :currentPage="vouchers.current_page" :totalItems="vouchers.total"
                         :itemsPerPage="vouchers.per_page" />
                 </div>
