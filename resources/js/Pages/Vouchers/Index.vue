@@ -144,6 +144,7 @@ const openRefundModal = () => {
 
 const closeRefundModal = () => {
     showRefundModal.value = false;
+    resetData();
 };
 
 const openShowInfoModal = () => {

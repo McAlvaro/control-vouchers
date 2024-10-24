@@ -3,6 +3,7 @@
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\PdfController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RefundController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\VoucherController;
 use Illuminate\Foundation\Application;
@@ -37,6 +38,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/contracts', [ContractController::class, 'store'])->name('contracts.store');
     Route::put('/contracts/{contract}', [ContractController::class, 'update'])->name('contracts.update');
     Route::delete('/contracts/{contract}', [ContractController::class, 'destroy'])->name('contracts.destroy');
+
+    Route::post('/refunds', [RefundController::class, 'store'])->name('refunds.store');
 });
 
 require __DIR__ . '/auth.php';

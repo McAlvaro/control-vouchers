@@ -10,6 +10,7 @@ use App\Services\Filters\DateFilter;
 use App\Services\Filters\Vouchers\DeliveryToFilter;
 use App\Services\Filters\Vouchers\PlateFilter;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Log;
 
 class VoucherService implements IVoucherService
 {
@@ -107,5 +108,12 @@ class VoucherService implements IVoucherService
     public function destroy(Voucher $voucher): void
     {
         $voucher->delete();
+    }
+
+    public function getVoucherById(int $voucher_id): Voucher
+    {
+        return Voucher::query()
+            ->where('id', $voucher_id)
+            ->first();
     }
 }
