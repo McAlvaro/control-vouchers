@@ -90,19 +90,20 @@ const closeModal = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr v-for="item in voucher.items" :key="item.id" class="bg-white border-b dark:bg-gray-800 dark:border-gray-300">
+                                            <tr v-for="item in voucher.items" :key="item.id"
+                                                class="bg-white border-b dark:bg-gray-800 dark:border-gray-300">
                                                 <th scope="row"
                                                     class="px-3 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-black">
-                                                    {{item.description}}
+                                                    {{ item.description }}
                                                 </th>
                                                 <td class="px-3 py-2">
-                                                    {{item.quantity}}
+                                                    {{ item.quantity }}
                                                 </td>
                                                 <td class="px-3 py-2">
-                                                    {{item.unit_price}}
+                                                    {{ item.unit_price }}
                                                 </td>
                                                 <td class="px-3 py-2">
-                                                    {{item.total_price}}
+                                                    {{ item.total_price }}
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -112,7 +113,44 @@ const closeModal = () => {
                             </div>
                             <div class="w-full col-span-2 p-1">
                                 <div class="flex items-center justify-center">
-                                    <h3 class="font-extralight text-lg text-gray-600"><span class="font-bold mr-2">Total:</span> {{voucher.total_amount}}</h3>
+                                    <h3 class="font-extralight text-lg text-gray-600"><span
+                                            class="font-bold mr-2">Total:</span> {{ voucher.total_amount }}</h3>
+                                </div>
+                            </div>
+                            <div v-if="voucher.refund" class="w-full col-span-2 p-1">
+                                <h3 class="text-lg text-gray-600 font-bold">Devoluciones</h3>
+                                <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                                    <table
+                                        class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                                        <thead
+                                            class="text-xs text-gray-300 uppercase bg-gray-50 dark:bg-gray-300 dark:text-gray-800">
+                                            <tr>
+                                                <th scope="col" class="px-3 py-2">
+                                                    Fecha
+                                                </th>
+                                                <th scope="col" class="px-3 py-2">
+                                                    Nro Factura
+                                                </th>
+                                                <th scope="col" class="px-3 py-2">
+                                                    Cantidad
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-300">
+                                                <th scope="row"
+                                                    class="px-3 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-black">
+                                                    {{ voucher.refund.date }}
+                                                </th>
+                                                <td class="px-3 py-2">
+                                                    {{ voucher.refund.invoice_number }}
+                                                </td>
+                                                <td class="px-3 py-2">
+                                                    {{ voucher.refund.quantity }}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>

@@ -78,7 +78,7 @@ class VoucherService implements IVoucherService
     public function getAll(string $delivery_to = null, string $plate = null, string $from_date = null, string $to_date = null): LengthAwarePaginator
     {
         $query = Voucher::query()
-            ->with('items')
+            ->with(['items', 'refund'])
             ->orderBy(column: 'id', direction: 'desc');
 
         $query = DeliveryToFilter::apply($query, $delivery_to);

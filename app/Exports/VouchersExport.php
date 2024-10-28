@@ -59,7 +59,8 @@ class VouchersExport implements FromQuery, WithHeadings, WithMapping
             'cantidad',
             'precio',
             'subtotal',
-            'total'
+            'total',
+            'devolucion'
         ];
     }
 
@@ -80,7 +81,8 @@ class VouchersExport implements FromQuery, WithHeadings, WithMapping
                     $row->kilometer,
                     $row->station_name,
                     ...$item,
-                    $row->total_amount
+                    $row->total_amount,
+                    $row->refund?->quantity
                 ];
             } else {
 

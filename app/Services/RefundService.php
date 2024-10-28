@@ -27,7 +27,7 @@ class RefundService implements IRefundService
 
         $voucher = $this->voucherService->getVoucherById($refundData['voucher_id']);
 
-        $refund = $voucher->refunds()->create([
+        $refund = $voucher->refund()->create([
             'date' => $refundData['date'],
             'invoice_number' => $refundData['invoice_number'],
             'quantity' => $refundData['quantity']

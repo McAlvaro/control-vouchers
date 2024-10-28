@@ -47,7 +47,7 @@ class Voucher extends Model
         return $this->belongsTo(Contract::class);
     }
 
-    public function refunds(){
-        return $this->hasMany(Refund::class);
+    public function refund(){
+        return $this->hasOne(Refund::class);
     }
 }

@@ -511,7 +511,7 @@ const resetFilters = () => {
                         @edit-voucher="handleEditVoucher" @delete-voucher="openDeleteModal"
                         @info-voucher="handleShowInfo">
                         <template #actions="{ row }">
-                            <button @click="handleRefundVoucher(row)" class="text-blue-600 hover:text-blue-900">
+                            <button v-if="!row.refund" @click="handleRefundVoucher(row)" class="text-blue-600 hover:text-blue-900">
                                 <ReceiptRefundIcon class="h-5 w-5" />
                             </button>
                         </template>
