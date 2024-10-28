@@ -28,6 +28,12 @@
                         <!-- Add icons to the links using the .nav-icon class
                         with font-awesome or any other icon font library -->
                         <li class="nav-item">
+                            <Link :href="route('dashboard.index')" class="nav-link" :class="{'active': route().current('dashboard.index')}">
+                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <p>Dashboard</p>
+                            </Link>
+                        </li>
+                        <li class="nav-item">
                             <Link :href="route('vouchers.index')" class="nav-link" :class="{'active': route().current('vouchers.index')}">
                                 <i class="nav-icon fas fa-ticket-alt"></i>
                                 <p>Vouchers</p>
