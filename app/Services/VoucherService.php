@@ -9,6 +9,7 @@ use App\Services\Contracts\IVoucherService;
 use App\Services\Filters\DateFilter;
 use App\Services\Filters\Vouchers\DeliveryToFilter;
 use App\Services\Filters\Vouchers\PlateFilter;
+use App\Services\Filters\Vouchers\StationNameFilter;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
 
@@ -75,11 +76,13 @@ class VoucherService implements IVoucherService
         }
     }
 
-    public function getAll(string $delivery_to = null, string $plate = null, string $from_date = null, string $to_date = null): LengthAwarePaginator
+    public function getAll(string $station_name = null, string $delivery_to = null, string $plate = null, string $from_date = null, string $to_date = null): LengthAwarePaginator
     {
         $query = Voucher::query()
             ->with(['items', 'refund'])
             ->orderBy(column: 'id', direction: 'desc');
+
+        $query = StationNameFilter::apply($query, $station_name);
 
         $query = DeliveryToFilter::apply($query, $delivery_to);
 

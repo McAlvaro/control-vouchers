@@ -33,6 +33,7 @@ const voucherToDelete = ref(null);
 const voucherToShow = ref(null);
 const currentContract = ref(null);
 let props = defineProps({ vouchers: Array, filters: Object, data_session: Object, contracts: Array });
+let station_name = ref(props.filters.station_name ? props.filters.station_name : '')
 let delivery_to = ref(props.filters.delivery_to ? props.filters.delivery_to : '')
 let plate = ref(props.filters.plate ? props.filters.plate : '')
 let from_date = ref(props.filters.from_date ? props.filters.from_date : '')
@@ -84,6 +85,10 @@ const buildFilters = () => {
 
     const filters = {};
 
+    if (station_name.value.length > 0) {
+        filters['station_name'] = station_name.value;
+    }
+
     if (delivery_to.value.length > 0) {
         filters['delivery_to'] = delivery_to.value;
     }
@@ -107,6 +112,8 @@ const fetchVouchers = () => {
 
     router.get(route('vouchers.index', filters), {}, { preserveState: true });
 };
+
+watch(station_name, fetchVouchers);
 
 watch(delivery_to, fetchVouchers);
 
@@ -307,6 +314,7 @@ const titleRefundModal = computed(() => {
 
 const resetFilters = () => {
 
+    station_name.value = '';
     delivery_to.value = '';
     plate.value = '';
     from_date.value = '';
@@ -331,7 +339,15 @@ const resetFilters = () => {
                         <div class="flex flex-row">
                             <div class="flex flex-row justify-center items-center">
                                 <div class="flex flex-row w-60 justify-center items-center">
-                                    <label for="small-input"
+                                    <label for="station_name"
+                                        class="inline-block text-sm font-medium p-2 text-gray-900 mr-2">Surtidor:
+                                    </label>
+                                    <input v-model="station_name" placeholder="Buscar Surtidor" type="text"
+                                        id="small-input"
+                                        class="inline-block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 ">
+                                </div>
+                                <div class="flex flex-row w-60 justify-center items-center">
+                                    <label for="delivery_to"
                                         class="inline-block text-sm font-medium p-2 text-gray-900 mr-2">Chofer:
                                     </label>
                                     <input v-model="delivery_to" placeholder="Buscar Chofer" type="text"
@@ -339,21 +355,21 @@ const resetFilters = () => {
                                         class="inline-block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 ">
                                 </div>
                                 <div class="flex flex-row w-60 justify-center items-center">
-                                    <label for="small-input"
+                                    <label for="plate"
                                         class="inline-block text-sm font-medium p-2 text-gray-900 mr-2">Placa:
                                     </label>
                                     <input v-model="plate" placeholder="Buscar Placa" type="text" id="small-input"
                                         class="inline-block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 ">
                                 </div>
                                 <div class="flex flex-row w-60 justify-center items-center">
-                                    <label for="small-input"
+                                    <label for="from_date"
                                         class="inline-block text-sm font-medium p-2 text-gray-900 mr-2">Desde:
                                     </label>
                                     <input v-model="from_date" type="date" id="from_date"
                                         class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                                 </div>
                                 <div class="flex flex-row w-60 justify-center items-center">
-                                    <label for="small-input"
+                                    <label for="to_date"
                                         class="inline-block text-sm font-medium p-2 text-gray-900 mr-2">Hasta:
                                     </label>
                                     <input v-model="to_date" type="date" id="to_date"
@@ -366,12 +382,12 @@ const resetFilters = () => {
                         </div>
                         <div class="inline-block">
                             <a :href="route('vouchers.export', buildFilters())" target="_blank"
-                                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mx-2">
+                                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-2 rounded mx-2">
                                 Exportar
                             </a>
                             <button @click="openModal"
-                                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                Agregar Nuevo Vale
+                                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-2 rounded">
+                                Nuevo Vale
                             </button>
                         </div>
                         <ModalVoucher v-model:show="showModal" :formData="form" :title="titleModal"

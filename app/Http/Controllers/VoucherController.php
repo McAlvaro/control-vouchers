@@ -31,6 +31,7 @@ class VoucherController extends Controller
     public function index(Request $request): Response
     {
         $vouchers = $this->voucherService->getAll(
+            $request->get('station_name') ?? null,
             $request->get('delivery_to') ?? null,
             $request->get('plate') ?? null,
             $request->get('from_date') ?? null,
@@ -42,7 +43,7 @@ class VoucherController extends Controller
         return Inertia::render(component: 'Vouchers/Index', props: [
             'vouchers' => $vouchers,
             'contracts' => $contracts,
-            'filters' => $request->only(['delivery_to', 'plate', 'from_date', 'to_date'])
+            'filters' => $request->only(['station_name', 'delivery_to', 'plate', 'from_date', 'to_date'])
         ]);
     }
 
