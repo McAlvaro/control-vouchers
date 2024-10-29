@@ -64,13 +64,6 @@ jobs:
         server: ${{ fromJson(needs.create-deployment-artifacts.outputs.DEPLOYMENT_MATRIX) }}
 
     steps:
-      - name: Set up environment variables
-        run: |
-          # Establece las variables de entorno para cada servidor
-          echo "SERVER_IP=${{ secrets['SERVER_IP_' + matrix.server.name.split('-')[1]] }}" >> $GITHUB_ENV
-          echo "SERVER_USERNAME=${{ secrets['SERVER_USERNAME_' + matrix.server.name.split('-')[1]] }}" >> $GITHUB_ENV
-          echo "SERVER_PATH=${{ matrix.server.path }}" >> $GITHUB_ENV
-
       - uses: actions/download-artifact@v3
         with:
           name: app-build
@@ -78,8 +71,8 @@ jobs:
       - name: Upload
         uses: appleboy/scp-action@master
         with:
-          host: ${{ env.SERVER_IP }}
-          username: ${{ env.SERVER_USERNAME }}
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           source: ${{ github.sha }}.tar.gz
-          target: "${{ env.SERVER_PATH }}"
+          target: ${{ matrix.server.path }}/artifacts
