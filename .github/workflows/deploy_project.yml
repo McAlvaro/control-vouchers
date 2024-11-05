@@ -116,8 +116,6 @@ jobs:
           envs: GITHUB_SHA,RELEASE_PATH,ACTIVE_RELEASE_PATH,STORAGE_PATH,BASE_PATH
           script: |
             ${{ matrix.server.beforeHooks }}
-            sudo chown -R $USER:www-data $STORAGE_PATH
-            sudo chmod -R 775 $STORAGE_PATH
             rm -rf $STORAGE_PATH/framework/views/*
 
   activate-release:
