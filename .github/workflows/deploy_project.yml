@@ -87,6 +87,7 @@ jobs:
             mkdir -p "${{ matrix.server.path }}/releases/${{ github.sha }}"
             tar xzf ${{ matrix.server.path }}/artifacts/${{github.sha}}.tar.gz -C "${{ matrix.server.path }}/releases/${{ github.sha }}"
             rm -rf ${{ matrix.server.path }}/releases/${{ github.sha }}/storage
+            rm -rf ${{ matrix.server.path }}/storage
 
             mkdir -p ${{ matrix.server.path }}/storage/{app,public,framework,logs}
             mkdir -p ${{ matrix.server.path }}/storage/framework/{cache,sessions,testing,views}
