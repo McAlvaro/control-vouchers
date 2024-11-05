@@ -170,6 +170,10 @@ jobs:
           script: |
             ${{ matrix.server.afterHooks }}
 
+            php $ACTIVE_RELEASE_PATH/artisan migrate --force
+
+            php $ACTIVE_RELEASE_PATH/artisan db:seed --force
+
   clean-up:
     name: "${{ matrix.server.name }}: Clean up"
     runs-on: ubuntu-latest
