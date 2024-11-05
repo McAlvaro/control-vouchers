@@ -4,7 +4,7 @@ import vue from '@vitejs/plugin-vue';
 
 export default defineConfig({
     server: {
-        https: true,  // Asegura que Vite sirva los recursos a través de HTTPS
+        // https: true,  // Asegura que Vite sirva los recursos a través de HTTPS
     },
     plugins: [
         laravel({
