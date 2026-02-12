@@ -21,6 +21,7 @@ return new class extends Migration
             $table->unsignedInteger(column: "quantity");
             $table->decimal(column: "unit_price", total: 20, places: 2);
             $table->decimal(column: "total_amount", total: 20, places: 2);
+            $table->softDeletes();
             $table->timestamps();
         });
     }

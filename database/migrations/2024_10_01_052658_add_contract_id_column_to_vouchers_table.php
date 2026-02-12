@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('vouchers', function (Blueprint $table) {
             $table->unsignedBigInteger(column: "contract_id")->nullable();
 
-            $table->foreign(columns: "contract_id")->references("id")->on("contracts");
+            $table->foreign(columns: "contract_id")->references("id")->on("contracts")->onDelete(action: "cascade");
         });
     }
 

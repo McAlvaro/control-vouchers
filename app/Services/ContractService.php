@@ -29,6 +29,7 @@ class ContractService implements IContractService
 
     public function destroy(Contract $contract): void
     {
+        $contract->vouchers()->delete();
         $contract->delete();
     }
 

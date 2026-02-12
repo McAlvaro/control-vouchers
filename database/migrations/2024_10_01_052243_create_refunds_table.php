@@ -17,9 +17,10 @@ return new class extends Migration
             $table->date(column: "date");
             $table->string(column: "invoice_number", length: 255);
             $table->unsignedInteger(column: "quantity");
+            $table->softDeletes();
             $table->timestamps();
 
-            $table->foreign(columns: "voucher_id")->references("id")->on("vouchers");
+            $table->foreign(columns: "voucher_id")->references("id")->on("vouchers")->onDelete(action: "cascade");
         });
     }
 

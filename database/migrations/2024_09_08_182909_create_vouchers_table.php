@@ -23,6 +23,7 @@ return new class extends Migration
             $table->decimal(column: 'total_amount', total: 20, places: 2);
             $table->enum(column: 'state', allowed: ['ACTIVE', 'CANCELLED'])->default(value: "ACTIVE");
             $table->unsignedBigInteger(column: 'user_id');
+            $table->softDeletes();
             $table->timestamps();
 
             $table->foreign(columns: 'user_id')->references(columns: 'id')->on(table: 'users');

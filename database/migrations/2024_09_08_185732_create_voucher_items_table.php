@@ -18,9 +18,10 @@ return new class extends Migration
             $table->text(column: 'description');
             $table->decimal(column: 'unit_price', total: 20, places: 2);
             $table->decimal(column: 'total_price', total: 20, places: 2);
+            $table->softDeletes();
             $table->timestamps();
 
-            $table->foreign(columns: 'voucher_id')->references(columns: 'id')->on(table: 'vouchers');
+            $table->foreign(columns: 'voucher_id')->references(columns: 'id')->on(table: 'vouchers')->onDelete(action: "cascade");
         });
     }
 
